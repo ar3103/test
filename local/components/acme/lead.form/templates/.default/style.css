@@ -1,0 +1,28 @@
+.acme-lead-form {
+    display: grid;
+    gap: 12px;
+    max-width: 560px;
+}
+
+.acme-lead-form input,
+.acme-lead-form textarea,
+.acme-lead-form button {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.acme-lead-form fieldset {
+    border: 1px solid #d8d8d8;
+    padding: 8px 12px;
+}
+
+.acme-lead-form__honeypot {
+    position: absolute;
+    left: -9999px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.acme-lead-form__result {
+    min-height: 20px;
+}
