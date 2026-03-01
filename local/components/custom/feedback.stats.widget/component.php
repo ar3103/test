@@ -4,13 +4,17 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 }
 
 use Bitrix\Main\Loader;
+use Bitrix\Main\Context;
 
 if (!Loader::includeModule('iblock')) {
     return;
 }
 
 $iblockId = 30;
-$siteFilter = $arParams['SITE_ID'] ?? SITE_ID;
+$request = Context::getCurrent()->getRequest();
+$requestSiteId = trim((string) $request->getQuery('SITE_ID'));
+$paramSiteId = trim((string) ($arParams['SITE_ID'] ?? ''));
+$siteFilter = $requestSiteId !== '' ? $requestSiteId : ($paramSiteId !== '' ? $paramSiteId : SITE_ID);
 
 $res = CIBlockElement::GetList(
     ['PROPERTY_CREATED_AT' => 'DESC'],
