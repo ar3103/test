@@ -7,38 +7,20 @@ class Triggers
     public static function sendCartReminders(string $siteId, array $config): void
     {
         $rows = self::getLeadsByIblock((int)$config['TRIGGERS']['CART_IBLOCK_ID'], '-1 day');
-        foreach ($rows as $row) {
-            $recipient = self::extractRecipient($row);
-            $subject = 'Вы забыли товары в корзине';
-            $message = 'У вас остались товары в корзине. Завершите оформление: ' . self::pageLink('/personal/cart/');
-            ChannelDispatcher::send($siteId, $config['CHANNELS'], $recipient, $subject, $message, ['LEAD_ID' => $row['ID']]);
-            Analytics::log($siteId, 'trigger_cart_sent', ['lead_id' => $row['ID']], $config);
-        }
+        self::sendLeadCampaign($siteId, $config, $rows, 'Вы забыли товары в корзине', 'У вас остались товары в корзине. Завершите оформление: ' . self::pageLink('/personal/cart/'), 'trigger_cart_sent');
     }
 
     public static function sendWebinarFollowup(string $siteId, array $config): void
     {
         $rows = self::getLeadsByIblock((int)$config['TRIGGERS']['WEBINAR_IBLOCK_ID'], '-3 day');
-        foreach ($rows as $row) {
-            $recipient = self::extractRecipient($row);
-            $subject = 'Спасибо за интерес к вебинару';
-            $message = 'Мы подготовили материалы вебинара: ' . self::pageLink('/webinars/materials/');
-            ChannelDispatcher::send($siteId, $config['CHANNELS'], $recipient, $subject, $message, ['LEAD_ID' => $row['ID']]);
-            Analytics::log($siteId, 'trigger_webinar_sent', ['lead_id' => $row['ID']], $config);
-        }
+        self::sendLeadCampaign($siteId, $config, $rows, 'Спасибо за интерес к вебинару', 'Мы подготовили материалы вебинара: ' . self::pageLink('/webinars/materials/'), 'trigger_webinar_sent');
     }
 
     public static function sendReengagement(string $siteId, array $config): void
     {
         $days = (int)$config['TRIGGERS']['REENGAGE_DAYS'];
         $rows = self::getLeadsByIblock((int)$config['FORMS_IBLOCK_ID'], '-' . $days . ' day');
-        foreach ($rows as $row) {
-            $recipient = self::extractRecipient($row);
-            $subject = 'Мы скучаем, возвращайтесь!';
-            $message = 'Спецпредложение для вас и новые статьи в блоге: ' . self::pageLink('/blog/');
-            ChannelDispatcher::send($siteId, $config['CHANNELS'], $recipient, $subject, $message, ['LEAD_ID' => $row['ID']]);
-            Analytics::log($siteId, 'trigger_reengagement_sent', ['lead_id' => $row['ID']], $config);
-        }
+        self::sendLeadCampaign($siteId, $config, $rows, 'Мы скучаем, возвращайтесь!', 'Спецпредложение для вас и новые статьи в блоге: ' . self::pageLink('/blog/'), 'trigger_reengagement_sent');
     }
 
     /**
@@ -74,6 +56,52 @@ class Triggers
         }
 
         return $rows;
+    }
+
+
+    private static function sendLeadCampaign(
+        string $siteId,
+        array $config,
+        array $rows,
+        string $subject,
+        string $message,
+        string $analyticsEvent
+    ): void {
+        foreach ($rows as $row) {
+            $leadId = (int)($row['ID'] ?? 0);
+            if ($leadId <= 0 || self::isAlreadySent($siteId, $leadId, $analyticsEvent, $config)) {
+                continue;
+            }
+
+            $recipient = self::extractRecipient($row);
+            ChannelDispatcher::send($siteId, $config['CHANNELS'], $recipient, $subject, $message, ['LEAD_ID' => $leadId]);
+            Analytics::log($siteId, $analyticsEvent, ['lead_id' => $leadId], $config);
+        }
+    }
+
+    private static function isAlreadySent(string $siteId, int $leadId, string $analyticsEvent, array $config): bool
+    {
+        $analyticsIblockId = (int)($config['ANALYTICS']['IBLOCK_ID'] ?? 0);
+        if ($analyticsIblockId <= 0) {
+            return false;
+        }
+
+        $payloadNeedle = '"lead_id":' . $leadId;
+        $res = \CIBlockElement::GetList(
+            ['ID' => 'DESC'],
+            [
+                'IBLOCK_ID' => $analyticsIblockId,
+                'ACTIVE' => 'Y',
+                '=PROPERTY_SITE_ID' => $siteId,
+                '=PROPERTY_EVENT_TYPE' => $analyticsEvent,
+                '%PROPERTY_PAYLOAD' => $payloadNeedle,
+            ],
+            false,
+            ['nTopCount' => 1],
+            ['ID']
+        );
+
+        return (bool)$res->Fetch();
     }
 
     private static function extractRecipient(array $row): array

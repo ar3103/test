@@ -56,9 +56,11 @@ class UserMailer
     {
         $days = (int)$config['TRIGGERS']['REENGAGE_DAYS'];
         $border = date('d.m.Y', strtotime('-' . $days . ' days'));
+        $by = 'ID';
+        $order = 'ASC';
         $users = \CUser::GetList(
-            $by = 'ID',
-            $order = 'ASC',
+            $by,
+            $order,
             ['ACTIVE' => 'Y', '<LAST_LOGIN' => $border],
             ['SELECT' => ['UF_TELEGRAM_CHAT_ID']]
         );
