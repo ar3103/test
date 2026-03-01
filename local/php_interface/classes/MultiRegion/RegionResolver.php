@@ -9,22 +9,21 @@ final class RegionResolver
     public function detectRegion(array $server, array $cookie, ?string $geoCountryCode = null): array
     {
         $regions = Config::regions();
-
-        if (!empty($cookie['SITE_REGION']) && isset($regions[$cookie['SITE_REGION']])) {
-            return ['code' => $cookie['SITE_REGION'], 'source' => 'cookie'];
-        }
-
         $host = $server['HTTP_HOST'] ?? '';
-        $requestUri = $server['REQUEST_URI'] ?? '/';
+        $requestPath = parse_url($server['REQUEST_URI'] ?? '/', \PHP_URL_PATH) ?: '/';
 
         foreach ($regions as $code => $region) {
             if (($region['host'] ?? '') === $host) {
                 return ['code' => $code, 'source' => 'host'];
             }
 
-            if (!empty($region['folder']) && str_starts_with($requestUri, $region['folder'])) {
+            if (!empty($region['folder']) && str_starts_with($requestPath, $region['folder'])) {
                 return ['code' => $code, 'source' => 'folder'];
             }
+        }
+
+        if (!empty($cookie['SITE_REGION']) && isset($regions[$cookie['SITE_REGION']])) {
+            return ['code' => $cookie['SITE_REGION'], 'source' => 'cookie'];
         }
 
         if ($geoCountryCode !== null) {
