@@ -13,7 +13,9 @@ class LinkTracker
         $shortUrl = $domain . '/?o=' . $orderId . '&h=' . $hash;
 
         if (!empty($config['LINK_LOG_IBLOCK_ID'])) {
-            CIBlockElement::Add([
+            $element = new CIBlockElement();
+
+            $element->Add([
                 'IBLOCK_ID' => (int) $config['LINK_LOG_IBLOCK_ID'],
                 'NAME' => 'Order #' . $orderId,
                 'PROPERTY_VALUES' => [
