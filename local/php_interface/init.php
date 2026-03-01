@@ -9,6 +9,10 @@ AddEventHandler('sale', 'OnSaleComponentOrderProperties', static function (&$arF
         return;
     }
 
+    // Обновляем список ПВЗ перед построением выпадающего списка,
+    // чтобы на новых установках и после изменений у Европочты данные не устаревали.
+    europostSyncPoints();
+
     $points = europostGetPoints();
 
     foreach ($arFields['ORDER_PROP']['USER_PROPS_Y'] as &$prop) {
