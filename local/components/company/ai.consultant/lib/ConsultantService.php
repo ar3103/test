@@ -26,6 +26,8 @@ class ConsultantService
             $dialog = $this->createDialog($sessionId, $contacts);
         }
 
+        $contacts = $this->mergeContacts($dialog['CONTACTS'] ?? [], $contacts);
+
         $history = $dialog['HISTORY'] ?? [];
         $history[] = ['role' => 'user', 'content' => $message, 'date' => date('c')];
 
@@ -226,7 +228,14 @@ class ConsultantService
             ['IBLOCK_ID' => $iblockId, 'ACTIVE' => 'Y', 'PROPERTY_SESSION_ID' => $sessionId],
             false,
             ['nTopCount' => 1],
-            ['ID', 'IBLOCK_ID', 'PROPERTY_HISTORY']
+            [
+                'ID',
+                'IBLOCK_ID',
+                'PROPERTY_HISTORY',
+                'PROPERTY_CONTACT_NAME',
+                'PROPERTY_PHONE',
+                'PROPERTY_TOPIC',
+            ]
         );
 
         if ($item = $result->GetNext()) {
@@ -234,6 +243,11 @@ class ConsultantService
                 'ID' => (int)$item['ID'],
                 'IBLOCK_ID' => (int)$item['IBLOCK_ID'],
                 'HISTORY' => json_decode((string)$item['PROPERTY_HISTORY_VALUE'], true) ?: [],
+                'CONTACTS' => [
+                    'name' => (string)($item['PROPERTY_CONTACT_NAME_VALUE'] ?? ''),
+                    'phone' => (string)($item['PROPERTY_PHONE_VALUE'] ?? ''),
+                    'topic' => (string)($item['PROPERTY_TOPIC_VALUE'] ?? ''),
+                ],
             ];
         }
 
@@ -254,5 +268,19 @@ class ConsultantService
         $cache[$this->siteId . ':' . $code] = (int)($iblock['ID'] ?? 0);
 
         return $cache[$this->siteId . ':' . $code];
+    }
+
+    private function mergeContacts(array $existingContacts, array $newContacts): array
+    {
+        $result = [];
+
+        foreach (['name', 'phone', 'topic'] as $field) {
+            $incomingValue = trim((string)($newContacts[$field] ?? ''));
+            $result[$field] = $incomingValue !== ''
+                ? $incomingValue
+                : trim((string)($existingContacts[$field] ?? ''));
+        }
+
+        return $result;
     }
 }
