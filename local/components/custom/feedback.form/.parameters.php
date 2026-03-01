@@ -23,12 +23,6 @@ $arComponentParameters = [
             'TYPE' => 'STRING',
             'DEFAULT' => '',
         ],
-        'TELEGRAM_BOT_TOKEN' => [
-            'PARENT' => 'INTEGRATIONS',
-            'NAME' => Loc::getMessage('CUSTOM_FEEDBACK_FORM_PARAM_TELEGRAM_BOT_TOKEN'),
-            'TYPE' => 'STRING',
-            'DEFAULT' => '',
-        ],
         'TELEGRAM_CHAT_ID' => [
             'PARENT' => 'INTEGRATIONS',
             'NAME' => Loc::getMessage('CUSTOM_FEEDBACK_FORM_PARAM_TELEGRAM_CHAT_ID'),
@@ -53,21 +47,9 @@ $arComponentParameters = [
             'TYPE' => 'STRING',
             'DEFAULT' => '',
         ],
-        'YANDEX_SMARTCAPTCHA_SECRET_KEY' => [
-            'PARENT' => 'CAPTCHA',
-            'NAME' => Loc::getMessage('CUSTOM_FEEDBACK_FORM_PARAM_YANDEX_SMARTCAPTCHA_SECRET_KEY'),
-            'TYPE' => 'STRING',
-            'DEFAULT' => '',
-        ],
         'GOOGLE_RECAPTCHA_SITE_KEY' => [
             'PARENT' => 'CAPTCHA',
             'NAME' => Loc::getMessage('CUSTOM_FEEDBACK_FORM_PARAM_GOOGLE_RECAPTCHA_SITE_KEY'),
-            'TYPE' => 'STRING',
-            'DEFAULT' => '',
-        ],
-        'GOOGLE_RECAPTCHA_SECRET_KEY' => [
-            'PARENT' => 'CAPTCHA',
-            'NAME' => Loc::getMessage('CUSTOM_FEEDBACK_FORM_PARAM_GOOGLE_RECAPTCHA_SECRET_KEY'),
             'TYPE' => 'STRING',
             'DEFAULT' => '',
         ],

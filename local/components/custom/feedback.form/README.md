@@ -16,16 +16,18 @@ D7-компонент формы обратной связи с Ajax, защит
 ## Параметры
 Обязательные для задачи:
 - `IBLOCK_ID`
-- `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_CHAT_ID`
-- `YANDEX_SMARTCAPTCHA_SECRET_KEY`
-- `GOOGLE_RECAPTCHA_SECRET_KEY`
 
 Дополнительные:
 - `YANDEX_SMARTCAPTCHA_SITE_KEY`
 - `GOOGLE_RECAPTCHA_SITE_KEY`
 - `MAIL_EVENT_NAME`
 - `GOOGLE_SHEETS_WEBHOOK_URL`
+
+Секреты интеграций храните только на сервере (переменные окружения или `Bitrix\Main\Config\Option` модуля `custom.feedback.form`):
+- `TELEGRAM_BOT_TOKEN` (или option `telegram_bot_token`)
+- `YANDEX_SMARTCAPTCHA_SECRET_KEY` (или option `yandex_smartcaptcha_secret_key`)
+- `GOOGLE_RECAPTCHA_SECRET_KEY` (или option `google_recaptcha_secret_key`)
 
 ## Свойства инфоблока
 Рекомендуется создать свойства с символьными кодами:

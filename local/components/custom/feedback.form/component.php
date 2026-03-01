@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 
 use Bitrix\Iblock\ElementTable;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
 use Bitrix\Main\Engine\ActionFilter;
 use Bitrix\Main\Engine\Contract\Controllerable;
@@ -21,6 +22,7 @@ Loc::loadMessages(__FILE__);
 
 class CustomFeedbackFormComponent extends CBitrixComponent implements Controllerable
 {
+    private const OPTION_MODULE_ID = 'custom.feedback.form';
     private const MAX_FILES = 10;
     private const MAX_FILE_SIZE = 5242880;
 
@@ -28,15 +30,25 @@ class CustomFeedbackFormComponent extends CBitrixComponent implements Controller
     {
         return [
             'IBLOCK_ID' => (int)($params['IBLOCK_ID'] ?? 0),
-            'TELEGRAM_BOT_TOKEN' => trim((string)($params['TELEGRAM_BOT_TOKEN'] ?? '')),
             'TELEGRAM_CHAT_ID' => trim((string)($params['TELEGRAM_CHAT_ID'] ?? '')),
             'MAIL_EVENT_NAME' => trim((string)($params['MAIL_EVENT_NAME'] ?? 'CUSTOM_FEEDBACK_FORM')),
             'GOOGLE_SHEETS_WEBHOOK_URL' => trim((string)($params['GOOGLE_SHEETS_WEBHOOK_URL'] ?? '')),
             'YANDEX_SMARTCAPTCHA_SITE_KEY' => trim((string)($params['YANDEX_SMARTCAPTCHA_SITE_KEY'] ?? '')),
-            'YANDEX_SMARTCAPTCHA_SECRET_KEY' => trim((string)($params['YANDEX_SMARTCAPTCHA_SECRET_KEY'] ?? '')),
             'GOOGLE_RECAPTCHA_SITE_KEY' => trim((string)($params['GOOGLE_RECAPTCHA_SITE_KEY'] ?? '')),
-            'GOOGLE_RECAPTCHA_SECRET_KEY' => trim((string)($params['GOOGLE_RECAPTCHA_SECRET_KEY'] ?? '')),
             'CACHE_TIME' => (int)($params['CACHE_TIME'] ?? 3600),
+        ];
+    }
+
+    protected function listKeysSignedParameters(): array
+    {
+        return [
+            'IBLOCK_ID',
+            'TELEGRAM_CHAT_ID',
+            'MAIL_EVENT_NAME',
+            'GOOGLE_SHEETS_WEBHOOK_URL',
+            'YANDEX_SMARTCAPTCHA_SITE_KEY',
+            'GOOGLE_RECAPTCHA_SITE_KEY',
+            'CACHE_TIME',
         ];
     }
 
@@ -136,10 +148,16 @@ class CustomFeedbackFormComponent extends CBitrixComponent implements Controller
 
     private function validateCaptcha(array $data, string $ip): void
     {
-        if ($this->arParams['YANDEX_SMARTCAPTCHA_SECRET_KEY'] !== '') {
+        $yandexSecret = $this->getSecretConfigValue(
+            'YANDEX_SMARTCAPTCHA_SECRET_KEY',
+            'YANDEX_SMARTCAPTCHA_SECRET_KEY',
+            'yandex_smartcaptcha_secret_key'
+        );
+
+        if ($yandexSecret !== '') {
             $client = new HttpClient(['socketTimeout' => 3, 'streamTimeout' => 3]);
             $result = $client->post('https://smartcaptcha.yandexcloud.net/validate', [
-                'secret' => $this->arParams['YANDEX_SMARTCAPTCHA_SECRET_KEY'],
+                'secret' => $yandexSecret,
                 'token' => $data['YANDEX_CAPTCHA_TOKEN'],
                 'ip' => $ip,
             ]);
@@ -150,10 +168,16 @@ class CustomFeedbackFormComponent extends CBitrixComponent implements Controller
             }
         }
 
-        if ($this->arParams['GOOGLE_RECAPTCHA_SECRET_KEY'] !== '') {
+        $googleSecret = $this->getSecretConfigValue(
+            'GOOGLE_RECAPTCHA_SECRET_KEY',
+            'GOOGLE_RECAPTCHA_SECRET_KEY',
+            'google_recaptcha_secret_key'
+        );
+
+        if ($googleSecret !== '') {
             $client = new HttpClient(['socketTimeout' => 3, 'streamTimeout' => 3]);
             $result = $client->post('https://www.google.com/recaptcha/api/siteverify', [
-                'secret' => $this->arParams['GOOGLE_RECAPTCHA_SECRET_KEY'],
+                'secret' => $googleSecret,
                 'response' => $data['GOOGLE_CAPTCHA_TOKEN'],
                 'remoteip' => $ip,
             ]);
@@ -240,7 +264,9 @@ class CustomFeedbackFormComponent extends CBitrixComponent implements Controller
 
     private function sendToTelegram(array $data, int $leadId): void
     {
-        if ($this->arParams['TELEGRAM_BOT_TOKEN'] === '' || $this->arParams['TELEGRAM_CHAT_ID'] === '') {
+        $telegramToken = $this->getSecretConfigValue('TELEGRAM_BOT_TOKEN', 'TELEGRAM_BOT_TOKEN', 'telegram_bot_token');
+
+        if ($telegramToken === '' || $this->arParams['TELEGRAM_CHAT_ID'] === '') {
             return;
         }
 
@@ -262,7 +288,7 @@ class CustomFeedbackFormComponent extends CBitrixComponent implements Controller
 
         $client = new HttpClient(['socketTimeout' => 2, 'streamTimeout' => 2]);
         $client->post(
-            'https://api.telegram.org/bot' . $this->arParams['TELEGRAM_BOT_TOKEN'] . '/sendMessage',
+            'https://api.telegram.org/bot' . $telegramToken . '/sendMessage',
             [
                 'chat_id' => $this->arParams['TELEGRAM_CHAT_ID'],
                 'text' => $message,
@@ -322,5 +348,20 @@ class CustomFeedbackFormComponent extends CBitrixComponent implements Controller
         $client = new HttpClient(['socketTimeout' => 2, 'streamTimeout' => 2]);
         $client->setHeader('Content-Type', 'application/json');
         $client->post($this->arParams['GOOGLE_SHEETS_WEBHOOK_URL'], json_encode($payload, JSON_UNESCAPED_UNICODE));
+    }
+
+    private function getSecretConfigValue(string $legacyParamKey, string $envKey, string $optionKey): string
+    {
+        $value = trim((string)getenv($envKey));
+        if ($value !== '') {
+            return $value;
+        }
+
+        $value = trim((string)Option::get(self::OPTION_MODULE_ID, $optionKey, ''));
+        if ($value !== '') {
+            return $value;
+        }
+
+        return trim((string)($this->arParams[$legacyParamKey] ?? ''));
     }
 }
