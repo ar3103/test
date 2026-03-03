@@ -27,9 +27,10 @@
         const promoType = form.promo_type.value;
         const people = Number(form.people_count.value || 0);
         const days = Number(form.days_count.value || 0);
+        const hours = Number(form.hours_count.value || 0);
 
         const rate = Number(promoTypes[promoType] || 0);
-        const base = rate * people * days;
+        const base = rate * people * days * hours;
         const personnelTax = base * 0.6;
         const personnelTotal = base + personnelTax;
         const management = personnelTotal * (managementPercent / 100);

@@ -40,6 +40,31 @@ $arComponentParameters = [
             'DEFAULT' => '15',
         ],
 
+
+        'EXCEL_CONTACT_WEBSITE' => [
+            'PARENT' => 'BASE',
+            'NAME' => Loc::getMessage('PROMO_CALCULATOR_PARAM_EXCEL_CONTACT_WEBSITE'),
+            'TYPE' => 'STRING',
+            'DEFAULT' => Loc::getMessage('PROMO_CALCULATOR_DEFAULT_EXCEL_CONTACT_WEBSITE'),
+        ],
+        'EXCEL_CONTACT_EMAIL' => [
+            'PARENT' => 'BASE',
+            'NAME' => Loc::getMessage('PROMO_CALCULATOR_PARAM_EXCEL_CONTACT_EMAIL'),
+            'TYPE' => 'STRING',
+            'DEFAULT' => Loc::getMessage('PROMO_CALCULATOR_DEFAULT_EXCEL_CONTACT_EMAIL'),
+        ],
+        'EXCEL_CONTACT_PHONE' => [
+            'PARENT' => 'BASE',
+            'NAME' => Loc::getMessage('PROMO_CALCULATOR_PARAM_EXCEL_CONTACT_PHONE'),
+            'TYPE' => 'STRING',
+            'DEFAULT' => Loc::getMessage('PROMO_CALCULATOR_DEFAULT_EXCEL_CONTACT_PHONE'),
+        ],
+        'EXCEL_COMPANY_NAME' => [
+            'PARENT' => 'BASE',
+            'NAME' => Loc::getMessage('PROMO_CALCULATOR_PARAM_EXCEL_COMPANY_NAME'),
+            'TYPE' => 'STRING',
+            'DEFAULT' => Loc::getMessage('PROMO_CALCULATOR_DEFAULT_EXCEL_COMPANY_NAME'),
+        ],
         'COSTS_IBLOCK_ID' => [
             'PARENT' => 'BASE',
             'NAME' => Loc::getMessage('PROMO_CALCULATOR_PARAM_COSTS_IBLOCK_ID'),

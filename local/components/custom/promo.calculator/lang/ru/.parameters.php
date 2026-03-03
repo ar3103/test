@@ -5,8 +5,17 @@ $MESS['PROMO_CALCULATOR_PARAM_TELEGRAM_BOT_TOKEN'] = 'Telegram Bot Token';
 $MESS['PROMO_CALCULATOR_PARAM_TELEGRAM_CHAT_ID'] = 'Telegram Chat ID';
 $MESS['PROMO_CALCULATOR_PARAM_MANAGEMENT_PERCENT'] = 'Процент менеджмента';
 $MESS['PROMO_CALCULATOR_PARAM_COSTS_IBLOCK_ID'] = 'ID инфоблока "Стоимость" (для списка требуемого персонала)';
-$MESS['PROMO_CALCULATOR_PARAM_PROMO_TYPES'] = 'Типы промо (массив: название => ставка/день)';
+$MESS['PROMO_CALCULATOR_PARAM_EXCEL_CONTACT_WEBSITE'] = 'Контакт в Excel: сайт';
+$MESS['PROMO_CALCULATOR_PARAM_EXCEL_CONTACT_EMAIL'] = 'Контакт в Excel: email';
+$MESS['PROMO_CALCULATOR_PARAM_EXCEL_CONTACT_PHONE'] = 'Контакт в Excel: телефон';
+$MESS['PROMO_CALCULATOR_PARAM_EXCEL_COMPANY_NAME'] = 'Название компании в Excel';
+$MESS['PROMO_CALCULATOR_PARAM_PROMO_TYPES'] = 'Типы промо (массив: название => ставка/час)';
 $MESS['PROMO_CALCULATOR_PARAM_REQUIRED_STAFF_OPTIONS'] = 'Варианты требуемого персонала (fallback)';
+
+$MESS['PROMO_CALCULATOR_DEFAULT_EXCEL_CONTACT_WEBSITE'] = 'https://example.com';
+$MESS['PROMO_CALCULATOR_DEFAULT_EXCEL_CONTACT_EMAIL'] = 'sales@example.com';
+$MESS['PROMO_CALCULATOR_DEFAULT_EXCEL_CONTACT_PHONE'] = '+7 (999) 123-45-67';
+$MESS['PROMO_CALCULATOR_DEFAULT_EXCEL_COMPANY_NAME'] = 'ВАША КОМПАНИЯ';
 
 $MESS['PROMO_CALCULATOR_DEFAULT_PROMO_TYPE_1'] = 'Промоутер без особых требований';
 $MESS['PROMO_CALCULATOR_DEFAULT_PROMO_TYPE_2'] = 'Промоутер с опытом';

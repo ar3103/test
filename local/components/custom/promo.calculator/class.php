@@ -7,6 +7,9 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail\Event;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     die();
@@ -28,6 +31,10 @@ class PromoCalculatorComponent extends CBitrixComponent
         $params['TELEGRAM_CHAT_ID'] = trim((string)($params['TELEGRAM_CHAT_ID'] ?? ''));
         $params['MANAGEMENT_PERCENT'] = (float)($params['MANAGEMENT_PERCENT'] ?? 15);
         $params['COSTS_IBLOCK_ID'] = (int)($params['COSTS_IBLOCK_ID'] ?? 0);
+        $params['EXCEL_CONTACT_WEBSITE'] = trim((string)($params['EXCEL_CONTACT_WEBSITE'] ?? Loc::getMessage('PROMO_CALCULATOR_DEFAULT_EXCEL_CONTACT_WEBSITE')));
+        $params['EXCEL_CONTACT_EMAIL'] = trim((string)($params['EXCEL_CONTACT_EMAIL'] ?? Loc::getMessage('PROMO_CALCULATOR_DEFAULT_EXCEL_CONTACT_EMAIL')));
+        $params['EXCEL_CONTACT_PHONE'] = trim((string)($params['EXCEL_CONTACT_PHONE'] ?? Loc::getMessage('PROMO_CALCULATOR_DEFAULT_EXCEL_CONTACT_PHONE')));
+        $params['EXCEL_COMPANY_NAME'] = trim((string)($params['EXCEL_COMPANY_NAME'] ?? Loc::getMessage('PROMO_CALCULATOR_DEFAULT_EXCEL_COMPANY_NAME')));
 
         if (!is_array($params['PROMO_TYPES'] ?? null) || !$params['PROMO_TYPES']) {
             $params['PROMO_TYPES'] = [
@@ -167,7 +174,7 @@ class PromoCalculatorComponent extends CBitrixComponent
     private function calculate(array $data): array
     {
         $ratePerDay = (float)$this->arParams['PROMO_TYPES'][$data['promo_type']];
-        $basePersonnel = $ratePerDay * $data['people_count'] * $data['days_count'];
+        $basePersonnel = $ratePerDay * $data['people_count'] * $data['days_count'] * $data['hours_count'];
         $personnelTaxes = $basePersonnel * self::PERSONNEL_TAX_RATE;
         $personnelTotal = $basePersonnel + $personnelTaxes;
 
@@ -209,34 +216,123 @@ class PromoCalculatorComponent extends CBitrixComponent
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle(Loc::getMessage('PROMO_CALCULATOR_EXCEL_SHEET_TITLE'));
 
-        $rows = [
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_TITLE'), ''],
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_PROMO_TYPE'), $data['promo_type']],
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_REQUIRED_STAFF'), $data['required_staff']],
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_PEOPLE_COUNT'), $data['people_count']],
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_HOURS_COUNT'), $data['hours_count']],
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_DAYS_COUNT'), $data['days_count']],
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_NAME'), $data['name']],
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_PHONE'), $data['phone']],
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_EMAIL'), $data['email']],
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_MESSAGE'), $data['message']],
-            ['', ''],
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_BASE'), $calculation['base_personnel']],
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_PERSONNEL_TAX'), $calculation['personnel_taxes']],
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_PERSONNEL_TOTAL'), $calculation['personnel_total']],
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_MANAGEMENT'), $calculation['management']],
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_AGENCY'), $calculation['agency']],
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_SUBTOTAL'), $calculation['subtotal']],
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_TAXES'), $calculation['taxes']],
-            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_TOTAL'), $calculation['total']],
+        $sheet->getDefaultColumnDimension()->setWidth(14);
+        $sheet->getColumnDimension('C')->setWidth(38);
+        $sheet->getColumnDimension('I')->setWidth(30);
+        $sheet->getColumnDimension('J')->setWidth(18);
+
+        $estimateTitle = Loc::getMessage('PROMO_CALCULATOR_EXCEL_ESTIMATE_TITLE') . ' ' . date('d.m.Y H:i');
+        $sheet->mergeCells('A1:J1');
+        $sheet->setCellValue('A1', $estimateTitle);
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+
+        $sheet->mergeCells('B2:D4');
+        $sheet->setCellValue('B2', $this->arParams['EXCEL_COMPANY_NAME']);
+        $sheet->getStyle('B2:D4')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getStyle('B2:D4')->getFont()->setBold(true)->setSize(24);
+
+        $sheet->setCellValue('E2', $this->arParams['EXCEL_CONTACT_WEBSITE']);
+        $sheet->setCellValue('E3', $this->arParams['EXCEL_CONTACT_EMAIL']);
+        $sheet->setCellValue('E4', $this->arParams['EXCEL_CONTACT_PHONE']);
+        $sheet->getStyle('E2:E4')->getFont()->setBold(true);
+
+        $headers = [
+            'A5' => Loc::getMessage('PROMO_CALCULATOR_EXCEL_COL_MECHANIC'),
+            'B5' => Loc::getMessage('PROMO_CALCULATOR_EXCEL_COL_LOCATION_TYPE'),
+            'C5' => Loc::getMessage('PROMO_CALCULATOR_EXCEL_COL_PROMO_STAFF'),
+            'D5' => Loc::getMessage('PROMO_CALCULATOR_EXCEL_COL_RATE_HOUR'),
+            'E5' => Loc::getMessage('PROMO_CALCULATOR_EXCEL_COL_TOTAL_STAFF'),
+            'F5' => Loc::getMessage('PROMO_CALCULATOR_EXCEL_COL_WORK_DAYS'),
+            'G5' => Loc::getMessage('PROMO_CALCULATOR_EXCEL_COL_OUTLETS'),
+            'H5' => Loc::getMessage('PROMO_CALCULATOR_EXCEL_COL_HOURS_PER_DAY'),
+            'I5' => Loc::getMessage('PROMO_CALCULATOR_EXCEL_COL_ADDITIONAL_REQUIREMENTS'),
+            'J5' => Loc::getMessage('PROMO_CALCULATOR_EXCEL_COL_ROW_TOTAL'),
         ];
 
-        $rowNum = 1;
-        foreach ($rows as $row) {
-            $sheet->setCellValue('A' . $rowNum, $row[0]);
-            $sheet->setCellValue('B' . $rowNum, $row[1]);
-            $rowNum++;
+        foreach ($headers as $cell => $label) {
+            $sheet->setCellValue($cell, $label);
         }
+
+        $sheet->getStyle('A5:J5')->applyFromArray([
+            'font' => ['bold' => true],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+                'wrapText' => true,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'D9D9D9'],
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
+                ],
+            ],
+        ]);
+
+        $sheet->setCellValue('A6', Loc::getMessage('PROMO_CALCULATOR_EXCEL_ROW_MECHANIC_DEFAULT'));
+        $sheet->setCellValue('B6', Loc::getMessage('PROMO_CALCULATOR_EXCEL_ROW_LOCATION_DEFAULT'));
+        $sheet->setCellValue('C6', $data['required_staff']);
+        $sheet->setCellValue('D6', $calculation['rate_per_day']);
+        $sheet->setCellValue('E6', $data['people_count']);
+        $sheet->setCellValue('F6', $data['days_count']);
+        $sheet->setCellValue('G6', 1);
+        $sheet->setCellValue('H6', $data['hours_count']);
+        $sheet->setCellValue('I6', $data['message'] !== '' ? $data['message'] : Loc::getMessage('PROMO_CALCULATOR_EXCEL_ROW_NO_REQUIREMENTS'));
+        $sheet->setCellValue('J6', $calculation['base_personnel']);
+
+        $sheet->getStyle('A6:J6')->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+                'wrapText' => true,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
+                ],
+            ],
+        ]);
+
+        foreach (['D6', 'J6', 'J9', 'J10', 'J11', 'J12', 'J13', 'J14', 'J15'] as $moneyCell) {
+            $sheet->getStyle($moneyCell)->getNumberFormat()->setFormatCode('#,##0.00');
+        }
+
+        $summaryRows = [
+            9 => [Loc::getMessage('PROMO_CALCULATOR_EXCEL_TOTAL'), $calculation['base_personnel']],
+            10 => [Loc::getMessage('PROMO_CALCULATOR_EXCEL_PERSONNEL_TAX'), $calculation['personnel_taxes']],
+            11 => [Loc::getMessage('PROMO_CALCULATOR_EXCEL_PERSONNEL_TOTAL'), $calculation['personnel_total']],
+            12 => [Loc::getMessage('PROMO_CALCULATOR_EXCEL_MANAGEMENT'), $calculation['management']],
+            13 => [Loc::getMessage('PROMO_CALCULATOR_EXCEL_AGENCY'), $calculation['agency']],
+            14 => [Loc::getMessage('PROMO_CALCULATOR_EXCEL_SUBTOTAL'), $calculation['subtotal']],
+            15 => [Loc::getMessage('PROMO_CALCULATOR_EXCEL_TOTAL_WITH_TAX'), $calculation['total']],
+        ];
+
+        foreach ($summaryRows as $rowNum => $summaryRow) {
+            $sheet->setCellValue('I' . $rowNum, $summaryRow[0]);
+            $sheet->setCellValue('J' . $rowNum, $summaryRow[1]);
+        }
+
+        $sheet->getStyle('I9:J15')->applyFromArray([
+            'font' => ['bold' => true],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_RIGHT,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
+                ],
+            ],
+        ]);
+        $sheet->getStyle('I10:I10')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('92D050');
+        $sheet->getStyle('J10:J10')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('9DC3E6');
+        $sheet->getStyle('I13:I13')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('92D050');
+        $sheet->getStyle('J13:J13')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('9DC3E6');
 
         $writer = new Xlsx($spreadsheet);
         $writer->save($fullPath);
