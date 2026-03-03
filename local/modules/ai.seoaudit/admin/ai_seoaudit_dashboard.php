@@ -5,7 +5,9 @@ use Ai\SeoAudit\Model\ProjectTable;
 use Ai\SeoAudit\Model\TaskTable;
 use Ai\SeoAudit\Model\TenantTable;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 
+Loc::loadMessages(__FILE__);
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php';
 
 if (!Loader::includeModule('ai.seoaudit')) {
@@ -19,23 +21,18 @@ $tenantCount = (int) TenantTable::getCount();
 $projectCount = (int) ProjectTable::getCount();
 $queuedTaskCount = (int) TaskTable::getCount(['=STATUS' => 'queued']);
 $providers = array_map(
-    static fn($provider) => $provider->getCode() . ($provider->isConfigured() ? ' ✅' : ' ❌'),
+    static fn ($provider) => $provider->getCode() . ($provider->isConfigured() ? ' ✅' : ' ❌'),
     ApiProviderRegistry::searchProviders()
 );
 
-$APPLICATION->SetTitle('AI SEO Audit Dashboard');
+$APPLICATION->SetTitle(Loc::getMessage('AI_SEO_DASHBOARD_TITLE'));
 require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
 ?>
 <div class="adm-detail-content-wrap">
     <div class="adm-detail-content">
-        <h2>SEO Dashboard</h2>
-        <p>Tenants: <b><?=$tenantCount;?></b> | Projects: <b><?=$projectCount;?></b> | Queued tasks: <b><?=$queuedTaskCount;?></b></p>
-        <p>Search API провайдеры: <?=htmlspecialcharsbx(implode(', ', $providers));?></p>
-        <ul>
-            <li>REST интеграции Яндекс/GSC подключены.</li>
-            <li>Генерация HTML/PDF SEO-отчетов доступна в разделе Reports & RAG.</li>
-            <li>Векторная база знаний и RAG доступны в разделе Reports & RAG.</li>
-        </ul>
+        <h2><?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_DASHBOARD_TITLE'));?></h2>
+        <p><?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_DASHBOARD_STATS', ['#TENANTS#' => $tenantCount, '#PROJECTS#' => $projectCount, '#TASKS#' => $queuedTaskCount]));?></p>
+        <p><?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_DASHBOARD_PROVIDERS'));?>: <?=htmlspecialcharsbx(implode(', ', $providers));?></p>
     </div>
 </div>
 <?php require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php'; ?>

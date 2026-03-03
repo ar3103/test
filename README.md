@@ -4,48 +4,45 @@
 
 ## Реализовано по замечаниям
 
-### 1) Полноценные REST-интеграции Яндекс/Google
+### 1) OAuth refresh flow для GSC и Яндекс
 
-- Добавлен HTTP-клиент `RestClient` на `Bitrix\Main\Web\HttpClient`.
-- `YandexWebmasterProvider` теперь выполняет реальный REST GET к API Webmaster.
-- `GoogleSearchConsoleProvider` выполняет реальный REST POST к Search Analytics API.
-- Провайдеры получают креды из `Bitrix\Main\Config\Option` через `ApiProviderRegistry`.
+- Добавлен `OAuthTokenManager` для централизованного хранения OAuth параметров.
+- `GoogleSearchConsoleProvider` и `YandexWebmasterProvider` автоматически обновляют `access_token` через `refresh_token`.
+- В `Setup Wizard` добавлены поля `client_id/client_secret/refresh_token` для обеих платформ.
 
-### 2) UI управления tenant/project/task
+### 2) Retry + circuit breaker для REST-клиентов
 
-Добавлены страницы админки:
-- `Entities`: создание и просмотр tenant/project/task.
-- `Dashboard`: KPI по тенантам/проектам/очереди + статус API-провайдеров.
-- `Setup Wizard`: настройка токенов провайдеров.
+- `RestClient` теперь выполняет retry (до 3 попыток) с backoff.
+- Добавлен circuit breaker:
+  - после серии ошибок endpoint временно блокируется;
+  - состояние хранится в `Bitrix Option`.
 
-### 3) Генерация PDF/HTML SEO-отчетов
+### 3) Внешняя embedding-модель (с fallback)
 
-- `ReportService` генерирует:
-  - HTML отчет;
-  - PDF отчет (минимальный валидный PDF-генератор без внешних зависимостей).
-- Отчеты сохраняются в `/upload/ai_seoaudit/reports` и фиксируются в таблице `b_ai_seo_report`.
+- Добавлен слой embedding-провайдеров:
+  - `OpenAiEmbeddingProvider` (внешняя модель `text-embedding-3-small` или другая);
+  - `HashEmbeddingFallbackProvider` (fallback при отсутствии ключа).
+- `EmbeddingService` теперь использует фабрику провайдеров `EmbeddingProviderFactory`.
 
-### 4) Векторное хранилище + RAG knowledge base
+### 4) PDF рендер через внешний движок
 
-- Добавлена таблица `b_ai_seo_vector_document`.
-- Реализовано:
-  - `EmbeddingService` (hash-based embeddings);
-  - `VectorStoreService` (индексация + cosine search);
-  - `RagService` (выдача релевантного контекста и draft answer).
-- В админке добавлена страница `Reports & RAG` для индексации, RAG-вопросов и генерации отчетов.
+- Реализованы PDF-движки:
+  - `WkhtmltopdfEngine`
+  - `DompdfEngine`
+  - `TcpdfEngine`
+- `PdfEngineFactory` выбирает движок по настройке `pdf_engine`.
+- При недоступности внешнего движка используется встроенный fallback PDF.
 
-## Структура БД
+### 5) Переводы на несколько языков
 
-- `b_ai_seo_tenant`
-- `b_ai_seo_project`
-- `b_ai_seo_task`
-- `b_ai_seo_api_credential`
-- `b_ai_seo_report`
-- `b_ai_seo_vector_document`
+Добавлены локализации `ru/en/de` для:
+- `admin/menu.php`
+- `admin/ai_seoaudit_dashboard.php`
+- `admin/ai_seoaudit_wizard.php`
 
-## Что осталось для production-hardening
+## Важно для production
 
-1. OAuth refresh flow для GSC и Яндекс.
-2. Retry/circuit breaker для REST-клиентов.
-3. Переход с hash-embedding на внешнюю embedding-модель.
-4. Рендер PDF через внешний движок (wkhtmltopdf / dompdf / tcpdf) при необходимости сложной верстки.
+1. Для OAuth необходимы валидные `client_id/client_secret/refresh_token`.
+2. Для внешнего PDF-рендера установите соответствующий движок на сервере.
+3. Для внешних embeddings укажите `openai_key` и `openai_embedding_model`.
+4. Можно расширить i18n на остальные админ-страницы и сообщения в сервисах.

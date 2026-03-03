@@ -20,11 +20,8 @@ final class ApiProviderRegistry
     public static function searchProviders(): array
     {
         return [
-            new YandexWebmasterProvider(
-                (string) Option::get(self::MODULE_ID, 'yandex_token', ''),
-                (string) Option::get(self::MODULE_ID, 'yandex_user_id', '')
-            ),
-            new GoogleSearchConsoleProvider((string) Option::get(self::MODULE_ID, 'gsc_access_token', '')),
+            new YandexWebmasterProvider(),
+            new GoogleSearchConsoleProvider(),
         ];
     }
 

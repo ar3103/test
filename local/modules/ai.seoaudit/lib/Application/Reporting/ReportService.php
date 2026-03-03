@@ -17,8 +17,9 @@ final class ReportService
         $htmlPath = '/upload/ai_seoaudit/reports/report_' . $projectId . '_' . $stamp . '.html';
         $pdfPath = '/upload/ai_seoaudit/reports/report_' . $projectId . '_' . $stamp . '.pdf';
 
-        file_put_contents($_SERVER['DOCUMENT_ROOT'] . $htmlPath, HtmlReportGenerator::generate($data));
-        file_put_contents($_SERVER['DOCUMENT_ROOT'] . $pdfPath, PdfReportGenerator::generateSimplePdf('SEO report for project ' . $projectId));
+        $html = HtmlReportGenerator::generate($data);
+        file_put_contents($_SERVER['DOCUMENT_ROOT'] . $htmlPath, $html);
+        file_put_contents($_SERVER['DOCUMENT_ROOT'] . $pdfPath, PdfReportGenerator::generateFromHtml($html, 'SEO report for project ' . $projectId));
 
         ReportTable::add([
             'TENANT_ID' => $tenantId,

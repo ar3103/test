@@ -2,9 +2,21 @@
 
 namespace Ai\SeoAudit\Application\Reporting;
 
+use Ai\SeoAudit\Application\Reporting\Pdf\PdfEngineFactory;
+
 final class PdfReportGenerator
 {
-    public static function generateSimplePdf(string $text): string
+    public static function generateFromHtml(string $html, string $fallbackText = 'SEO report'): string
+    {
+        $pdf = PdfEngineFactory::make()->renderFromHtml($html);
+        if ($pdf !== '') {
+            return $pdf;
+        }
+
+        return self::generateSimplePdf($fallbackText);
+    }
+
+    private static function generateSimplePdf(string $text): string
     {
         $text = str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $text);
         $content = "BT /F1 12 Tf 50 750 Td ($text) Tj ET";
