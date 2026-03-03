@@ -4,6 +4,7 @@ use Bitrix\Main\Loader;
 
 Loader::registerAutoLoadClasses('ai.seoaudit', [
     'Ai\\SeoAudit\\Application\\AgentManager' => 'lib/Application/AgentManager.php',
+    'Ai\\SeoAudit\\Application\\EnterpriseProvisioningService' => 'lib/Application/EnterpriseProvisioningService.php',
     'Ai\\SeoAudit\\Application\\FeatureCatalog' => 'lib/Application/FeatureCatalog.php',
     'Ai\\SeoAudit\\Application\\MigrationManager' => 'lib/Application/MigrationManager.php',
     'Ai\\SeoAudit\\Application\\QueueService' => 'lib/Application/QueueService.php',
@@ -41,8 +42,10 @@ Loader::registerAutoLoadClasses('ai.seoaudit', [
     'Ai\\SeoAudit\\Infrastructure\\Http\\RestClient' => 'lib/Infrastructure/Http/RestClient.php',
 
     'Ai\\SeoAudit\\Model\\ApiCredentialTable' => 'lib/Model/ApiCredentialTable.php',
+    'Ai\\SeoAudit\\Model\\PlanOverrideTable' => 'lib/Model/PlanOverrideTable.php',
     'Ai\\SeoAudit\\Model\\ProjectTable' => 'lib/Model/ProjectTable.php',
     'Ai\\SeoAudit\\Model\\ReportTable' => 'lib/Model/ReportTable.php',
+    'Ai\\SeoAudit\\Model\\SubscriptionTable' => 'lib/Model/SubscriptionTable.php',
     'Ai\\SeoAudit\\Model\\TaskTable' => 'lib/Model/TaskTable.php',
     'Ai\\SeoAudit\\Model\\TenantTable' => 'lib/Model/TenantTable.php',
     'Ai\\SeoAudit\\Model\\VectorDocumentTable' => 'lib/Model/VectorDocumentTable.php',

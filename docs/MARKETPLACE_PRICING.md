@@ -138,3 +138,19 @@ Enterprise (по запросу) считать отдельно по контр
 - Поддержка и customer success: 6–10%.
 
 Целевой **gross margin**: **55–65%**.
+
+---
+
+## 9) Как включается Enterprise под клиента (workflow)
+
+Enterprise включается через отдельный onboarding-процесс:
+
+1. Подписание договора и фиксация `contract_ref`.
+2. Активация подписки tenant в админке (`Enterprise Activation`).
+3. Назначение индивидуальных лимитов (plan overrides).
+4. Статус подписки: `active` / `suspended`.
+
+Технически в модуле:
+- `b_ai_seo_subscription` — история подписок и статусов;
+- `b_ai_seo_plan_override` — индивидуальные лимиты клиента;
+- админ-страница `ai_seoaudit_enterprise.php` — activate/suspend.

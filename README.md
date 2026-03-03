@@ -65,3 +65,11 @@
 - состав функций и лимитов по каждому тарифу;
 - допродажи (onboarding, доп. ключи, доп. проекты, white-label);
 - пример MRR/ARR и unit-экономика на 12 месяцев.
+
+## Enterprise onboarding под клиента
+
+Добавлен технический workflow включения Enterprise:
+- админ-экран `Enterprise Activation`;
+- хранение подписки в `b_ai_seo_subscription`;
+- хранение индивидуальных лимитов в `b_ai_seo_plan_override`;
+- операции activate/suspend по tenant.

@@ -6,3 +6,5 @@ $MESS['AI_SEO_MENU_ENTITIES'] = 'Сущности';
 $MESS['AI_SEO_MENU_REPORTS'] = 'Отчеты и RAG';
 
 $MESS['AI_SEO_MENU_MARKETPLACE'] = 'Маркетплейс и цены';
+
+$MESS['AI_SEO_MENU_ENTERPRISE'] = 'Enterprise активация';

@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS b_ai_seo_plan_override;
+DROP TABLE IF EXISTS b_ai_seo_subscription;
 DROP TABLE IF EXISTS b_ai_seo_vector_document;
 DROP TABLE IF EXISTS b_ai_seo_report;
 DROP TABLE IF EXISTS b_ai_seo_api_credential;
