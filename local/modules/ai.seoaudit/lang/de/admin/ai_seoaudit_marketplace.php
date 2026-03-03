@@ -1,0 +1,26 @@
+<?php
+$MESS['AI_SEO_MARKETPLACE_TITLE'] = 'Marketplace: Tarife und ROI';
+$MESS['AI_SEO_MARKETPLACE_MAIN_PLANS'] = '3 Kern-Tarife + Enterprise auf Anfrage';
+$MESS['AI_SEO_MARKETPLACE_PLAN'] = 'Tarif';
+$MESS['AI_SEO_MARKETPLACE_PRICE'] = 'Preis';
+$MESS['AI_SEO_MARKETPLACE_VALUE'] = 'Enthalten';
+$MESS['AI_SEO_MARKETPLACE_START'] = 'Basis: Rankings, Semantik, Audit, SERP';
+$MESS['AI_SEO_MARKETPLACE_PRO'] = 'Wachstum: Clustering, Wettbewerber, AI-Snippets';
+$MESS['AI_SEO_MARKETPLACE_AGENCY'] = 'Agenturen: Multi-Client, API, RAG, Automatisierung';
+$MESS['AI_SEO_MARKETPLACE_ENTERPRISE'] = 'SSO/SLA, kundenspezifische Integrationen, dedizierte Kontingente';
+$MESS['AI_SEO_MARKETPLACE_REQUEST'] = 'auf Anfrage';
+$MESS['AI_SEO_MARKETPLACE_TRIAL'] = 'Kostenloser 7–14 Tage Trial';
+$MESS['AI_SEO_MARKETPLACE_TRIAL_DESC'] = 'Empfohlene Trial-Limits: bis zu 2.000 Keywords und 1 Projekt.';
+$MESS['AI_SEO_MARKETPLACE_AI_VALUE'] = 'AI-Mehrwert';
+$MESS['AI_SEO_MARKETPLACE_AI_FORECAST'] = 'AI-Prognosen für Rankings und Traffic';
+$MESS['AI_SEO_MARKETPLACE_AI_AUTOMATION'] = 'SEO-Automatisierung und Action Planner';
+$MESS['AI_SEO_MARKETPLACE_AI_RAG'] = 'RAG-Assistent auf Basis der Website-Wissensdatenbank';
+$MESS['AI_SEO_MARKETPLACE_AGENCY_BLOCK'] = 'Agentur-Block';
+$MESS['AI_SEO_MARKETPLACE_AGENCY_DESC'] = 'White-Label, Multi-Client-Betrieb, zentrale Berichte.';
+$MESS['AI_SEO_MARKETPLACE_CALC_TITLE'] = 'Nutzenrechner';
+$MESS['AI_SEO_MARKETPLACE_CALC_DESC'] = 'Schätzung von organischem Wachstum und Einsparungen.';
+$MESS['AI_SEO_MARKETPLACE_CALC_TRAFFIC'] = 'Aktueller organischer Traffic/Monat';
+$MESS['AI_SEO_MARKETPLACE_CALC_GROWTH'] = 'Potenzielles Wachstum, %';
+$MESS['AI_SEO_MARKETPLACE_CALC_CPC'] = 'Durchschnittlicher CPC, ₽';
+$MESS['AI_SEO_MARKETPLACE_CALC_BTN'] = 'Berechnen';
+$MESS['AI_SEO_MARKETPLACE_CALC_RESULT'] = 'Zusätzlicher Traffic: #ADDED# Besuche/Monat, geschätzte Einsparung: #SAVINGS# ₽/Monat.';
