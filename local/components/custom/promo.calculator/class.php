@@ -3,6 +3,7 @@
 use Bitrix\Main\Context;
 use Bitrix\Main\Diag\Debug;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail\Event;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -10,6 +11,8 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     die();
 }
+
+Loc::loadMessages(__FILE__);
 
 class PromoCalculatorComponent extends CBitrixComponent
 {
@@ -28,18 +31,18 @@ class PromoCalculatorComponent extends CBitrixComponent
 
         if (!is_array($params['PROMO_TYPES'] ?? null) || !$params['PROMO_TYPES']) {
             $params['PROMO_TYPES'] = [
-                'Промоутер без особых требований' => 900,
-                'Промоутер с опытом' => 1200,
-                'Супервайзер' => 1800,
+                Loc::getMessage('PROMO_CALCULATOR_DEFAULT_PROMO_TYPE_1') => 900,
+                Loc::getMessage('PROMO_CALCULATOR_DEFAULT_PROMO_TYPE_2') => 1200,
+                Loc::getMessage('PROMO_CALCULATOR_DEFAULT_PROMO_TYPE_3') => 1800,
             ];
         }
 
         if (!is_array($params['REQUIRED_STAFF_OPTIONS'] ?? null) || !$params['REQUIRED_STAFF_OPTIONS']) {
             $params['REQUIRED_STAFF_OPTIONS'] = [
-                'Промоутер',
-                'Промоутер с опытом продаж',
-                'Супервайзер',
-                'Консультант',
+                Loc::getMessage('PROMO_CALCULATOR_DEFAULT_REQUIRED_STAFF_1'),
+                Loc::getMessage('PROMO_CALCULATOR_DEFAULT_REQUIRED_STAFF_2'),
+                Loc::getMessage('PROMO_CALCULATOR_DEFAULT_REQUIRED_STAFF_3'),
+                Loc::getMessage('PROMO_CALCULATOR_DEFAULT_REQUIRED_STAFF_4'),
             ];
         }
 
@@ -59,7 +62,6 @@ class PromoCalculatorComponent extends CBitrixComponent
 
         $this->includeComponentTemplate();
     }
-
 
     private function getRequiredStaffOptions(): array
     {
@@ -100,11 +102,9 @@ class PromoCalculatorComponent extends CBitrixComponent
 
     private function processAjax(): void
     {
-        global $APPLICATION;
-
         $request = Context::getCurrent()->getRequest();
         if (!check_bitrix_sessid()) {
-            $this->sendJson(['success' => false, 'message' => 'Ошибка сессии']);
+            $this->sendJson(['success' => false, 'message' => Loc::getMessage('PROMO_CALCULATOR_ERROR_SESSION')]);
         }
 
         $data = [
@@ -133,7 +133,7 @@ class PromoCalculatorComponent extends CBitrixComponent
 
         $this->sendJson([
             'success' => true,
-            'message' => 'Расчет успешно выполнен',
+            'message' => Loc::getMessage('PROMO_CALCULATOR_SUCCESS'),
             'download_url' => $excelPath,
             'total' => $calculation['total'],
         ]);
@@ -142,23 +142,23 @@ class PromoCalculatorComponent extends CBitrixComponent
     private function validate(array $data): ?string
     {
         if ($data['promo_type'] === '' || !isset($this->arParams['PROMO_TYPES'][$data['promo_type']])) {
-            return 'Выберите тип промо акции';
+            return Loc::getMessage('PROMO_CALCULATOR_ERROR_PROMO_TYPE');
         }
 
         if ($data['required_staff'] === '' || !in_array($data['required_staff'], $this->arResult['REQUIRED_STAFF_OPTIONS'], true)) {
-            return 'Выберите требуемый персонал';
+            return Loc::getMessage('PROMO_CALCULATOR_ERROR_REQUIRED_STAFF');
         }
 
         if ($data['people_count'] < 1 || $data['hours_count'] < 1 || $data['days_count'] < 1) {
-            return 'Количество людей, часов и дней должно быть больше нуля';
+            return Loc::getMessage('PROMO_CALCULATOR_ERROR_COUNTS');
         }
 
         if ($data['name'] === '' || $data['phone'] === '' || $data['email'] === '') {
-            return 'Заполните контактные данные';
+            return Loc::getMessage('PROMO_CALCULATOR_ERROR_CONTACTS');
         }
 
         if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            return 'Укажите корректный email';
+            return Loc::getMessage('PROMO_CALCULATOR_ERROR_EMAIL');
         }
 
         return null;
@@ -207,28 +207,28 @@ class PromoCalculatorComponent extends CBitrixComponent
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle('Коммерческое предложение');
+        $sheet->setTitle(Loc::getMessage('PROMO_CALCULATOR_EXCEL_SHEET_TITLE'));
 
         $rows = [
-            ['Коммерческое предложение', ''],
-            ['Тип промо акции', $data['promo_type']],
-            ['Требуемый персонал', $data['required_staff']],
-            ['Количество человек', $data['people_count']],
-            ['Количество часов', $data['hours_count']],
-            ['Количество дней', $data['days_count']],
-            ['Имя', $data['name']],
-            ['Телефон', $data['phone']],
-            ['Почта', $data['email']],
-            ['Текст сообщения', $data['message']],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_TITLE'), ''],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_PROMO_TYPE'), $data['promo_type']],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_REQUIRED_STAFF'), $data['required_staff']],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_PEOPLE_COUNT'), $data['people_count']],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_HOURS_COUNT'), $data['hours_count']],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_DAYS_COUNT'), $data['days_count']],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_NAME'), $data['name']],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_PHONE'), $data['phone']],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_EMAIL'), $data['email']],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_MESSAGE'), $data['message']],
             ['', ''],
-            ['База за персонал', $calculation['base_personnel']],
-            ['Налоги за персонал', $calculation['personnel_taxes']],
-            ['Итого за персонал', $calculation['personnel_total']],
-            ['Менеджмент', $calculation['management']],
-            ['АК 15%', $calculation['agency']],
-            ['Итого с менеджментом и АК', $calculation['subtotal']],
-            ['Налоги', $calculation['taxes']],
-            ['ИТОГО', $calculation['total']],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_BASE'), $calculation['base_personnel']],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_PERSONNEL_TAX'), $calculation['personnel_taxes']],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_PERSONNEL_TOTAL'), $calculation['personnel_total']],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_MANAGEMENT'), $calculation['management']],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_AGENCY'), $calculation['agency']],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_SUBTOTAL'), $calculation['subtotal']],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_TAXES'), $calculation['taxes']],
+            [Loc::getMessage('PROMO_CALCULATOR_EXCEL_TOTAL'), $calculation['total']],
         ];
 
         $rowNum = 1;
@@ -253,7 +253,7 @@ class PromoCalculatorComponent extends CBitrixComponent
         $element = new CIBlockElement();
         $fields = [
             'IBLOCK_ID' => $this->arParams['IBLOCK_ID'],
-            'NAME' => 'Заявка: ' . $data['name'] . ' (' . date('d.m.Y H:i') . ')',
+            'NAME' => Loc::getMessage('PROMO_CALCULATOR_IBLOCK_NAME_PREFIX') . ': ' . $data['name'] . ' (' . date('d.m.Y H:i') . ')',
             'ACTIVE' => 'Y',
             'PREVIEW_TEXT' => $data['message'],
             'PROPERTY_VALUES' => [
@@ -302,13 +302,13 @@ class PromoCalculatorComponent extends CBitrixComponent
             return;
         }
 
-        $text = "Новая заявка калькулятора:%0A"
-            . "Имя: {$data['name']}%0A"
-            . "Телефон: {$data['phone']}%0A"
-            . "Email: {$data['email']}%0A"
-            . "Тип: {$data['promo_type']}%0A"
-            . "Итого: {$calculation['total']} руб.%0A"
-            . "Файл: {$excelPath}";
+        $text = Loc::getMessage('PROMO_CALCULATOR_TELEGRAM_NEW_REQUEST') . '%0A'
+            . Loc::getMessage('PROMO_CALCULATOR_TELEGRAM_NAME') . ': ' . $data['name'] . '%0A'
+            . Loc::getMessage('PROMO_CALCULATOR_TELEGRAM_PHONE') . ': ' . $data['phone'] . '%0A'
+            . Loc::getMessage('PROMO_CALCULATOR_TELEGRAM_EMAIL') . ': ' . $data['email'] . '%0A'
+            . Loc::getMessage('PROMO_CALCULATOR_TELEGRAM_TYPE') . ': ' . $data['promo_type'] . '%0A'
+            . Loc::getMessage('PROMO_CALCULATOR_TELEGRAM_TOTAL') . ': ' . $calculation['total'] . ' ' . Loc::getMessage('PROMO_CALCULATOR_CURRENCY_RUB') . '%0A'
+            . Loc::getMessage('PROMO_CALCULATOR_TELEGRAM_FILE') . ': ' . $excelPath;
 
         $url = sprintf(
             'https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s',

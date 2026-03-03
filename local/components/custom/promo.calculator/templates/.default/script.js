@@ -6,6 +6,7 @@
 
     const promoTypes = JSON.parse(root.dataset.promoTypes || '{}');
     const managementPercent = Number(root.dataset.managementPercent || 15);
+    const i18n = JSON.parse(root.dataset.i18n || '{}');
 
     const form = root.querySelector('.promo-calculator__form');
     const statusNode = root.querySelector('[data-status]');
@@ -53,7 +54,7 @@
 
     form.addEventListener('submit', async function (event) {
         event.preventDefault();
-        statusNode.textContent = 'Отправка...';
+        statusNode.textContent = i18n.status_sending || 'Sending...';
 
         const body = new FormData(form);
 
@@ -68,7 +69,7 @@
 
             const payload = await response.json();
             if (!payload.success) {
-                statusNode.textContent = payload.message || 'Ошибка при обработке запроса';
+                statusNode.textContent = payload.message || i18n.status_error_process || 'Request processing error';
                 return;
             }
 
@@ -79,7 +80,7 @@
                 downloadNode.click();
             }
         } catch (error) {
-            statusNode.textContent = 'Не удалось отправить форму. Повторите позже.';
+            statusNode.textContent = i18n.status_error_network || 'Unable to send the form. Please try again later.';
         }
     });
 })();

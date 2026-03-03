@@ -3,11 +3,15 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     die();
 }
 
+use Bitrix\Main\Localization\Loc;
+
+Loc::loadMessages(__FILE__);
+
 $arComponentDescription = [
-    'NAME' => 'Калькулятор промо-акций',
-    'DESCRIPTION' => 'Расчет сметы, выгрузка КП в Excel, отправка в e-mail/Telegram, сохранение в инфоблок',
+    'NAME' => Loc::getMessage('PROMO_CALCULATOR_COMPONENT_NAME'),
+    'DESCRIPTION' => Loc::getMessage('PROMO_CALCULATOR_COMPONENT_DESCRIPTION'),
     'PATH' => [
         'ID' => 'custom',
-        'NAME' => 'Custom components',
+        'NAME' => Loc::getMessage('PROMO_CALCULATOR_COMPONENT_PATH_NAME'),
     ],
 ];
