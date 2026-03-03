@@ -8,17 +8,23 @@ use Ai\SeoAudit\Infrastructure\Api\Providers\GoogleSearchConsoleProvider;
 use Ai\SeoAudit\Infrastructure\Api\Providers\LocalLlmProvider;
 use Ai\SeoAudit\Infrastructure\Api\Providers\OpenAiProvider;
 use Ai\SeoAudit\Infrastructure\Api\Providers\YandexWebmasterProvider;
+use Bitrix\Main\Config\Option;
 
 final class ApiProviderRegistry
 {
+    private const MODULE_ID = 'ai.seoaudit';
+
     /**
      * @return SearchProviderInterface[]
      */
     public static function searchProviders(): array
     {
         return [
-            new YandexWebmasterProvider((string) getenv('AI_SEO_YANDEX_TOKEN')),
-            new GoogleSearchConsoleProvider((string) getenv('AI_SEO_GSC_CREDENTIALS')),
+            new YandexWebmasterProvider(
+                (string) Option::get(self::MODULE_ID, 'yandex_token', ''),
+                (string) Option::get(self::MODULE_ID, 'yandex_user_id', '')
+            ),
+            new GoogleSearchConsoleProvider((string) Option::get(self::MODULE_ID, 'gsc_access_token', '')),
         ];
     }
 
@@ -28,8 +34,8 @@ final class ApiProviderRegistry
     public static function llmProviders(): array
     {
         return [
-            new OpenAiProvider((string) getenv('AI_SEO_OPENAI_KEY')),
-            new LocalLlmProvider((string) getenv('AI_SEO_LOCAL_LLM_ENDPOINT')),
+            new OpenAiProvider((string) Option::get(self::MODULE_ID, 'openai_key', '')),
+            new LocalLlmProvider((string) Option::get(self::MODULE_ID, 'local_llm_endpoint', '')),
         ];
     }
 }

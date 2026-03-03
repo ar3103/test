@@ -16,7 +16,8 @@ $moduleId = 'ai.seoaudit';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && check_bitrix_sessid()) {
     Option::set($moduleId, 'yandex_token', (string) ($_POST['YANDEX_TOKEN'] ?? ''));
-    Option::set($moduleId, 'gsc_credentials', (string) ($_POST['GSC_CREDENTIALS'] ?? ''));
+    Option::set($moduleId, 'yandex_user_id', (string) ($_POST['YANDEX_USER_ID'] ?? ''));
+    Option::set($moduleId, 'gsc_access_token', (string) ($_POST['GSC_ACCESS_TOKEN'] ?? ''));
     Option::set($moduleId, 'openai_key', (string) ($_POST['OPENAI_KEY'] ?? ''));
     Option::set($moduleId, 'local_llm_endpoint', (string) ($_POST['LOCAL_LLM_ENDPOINT'] ?? ''));
 }
@@ -32,8 +33,12 @@ require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_a
             <td><input type="text" name="YANDEX_TOKEN" value="<?=htmlspecialcharsbx(Option::get($moduleId, 'yandex_token', ''));?>" size="60"></td>
         </tr>
         <tr>
-            <td>Google Search Console Credentials (JSON)</td>
-            <td><textarea name="GSC_CREDENTIALS" rows="4" cols="60"><?=htmlspecialcharsbx(Option::get($moduleId, 'gsc_credentials', ''));?></textarea></td>
+            <td>Yandex User ID</td>
+            <td><input type="text" name="YANDEX_USER_ID" value="<?=htmlspecialcharsbx(Option::get($moduleId, 'yandex_user_id', ''));?>" size="60"></td>
+        </tr>
+        <tr>
+            <td>Google Search Console Access Token</td>
+            <td><input type="text" name="GSC_ACCESS_TOKEN" value="<?=htmlspecialcharsbx(Option::get($moduleId, 'gsc_access_token', ''));?>" size="60"></td>
         </tr>
         <tr>
             <td>OpenAI API Key</td>

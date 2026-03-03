@@ -1,94 +1,51 @@
 # AI SEO Audit для 1С-Битрикс
 
-Готовый модуль под маркетплейс Битрикс для запуска SaaS/On-Premise SEO платформы с AI-агентами, пакетами лицензий и визуальным интерфейсом.
+Модуль для Битрикс Маркетплейса с multi-tenant SEO платформой: мониторинг, аудит, AI-рекомендации, очереди, отчеты, RAG.
 
-## Что реализовано в текущем коде
+## Реализовано по замечаниям
 
-- Подключены SQL миграции и D7 ORM сущности (`Tenant`, `Project`, `Task`, `ApiCredential`).
-- Добавлены агенты/очереди и cron entrypoint для фоновой обработки.
-- Реализована админка: меню, дашборд, мастер настройки API.
-- Подключен каркас API-провайдеров: Яндекс, Google Search Console, OpenAI, локальная LLM.
-- Добавлен каталог пакетных тарифов (`Start`, `Pro`, `Enterprise`, `Autonomous`).
+### 1) Полноценные REST-интеграции Яндекс/Google
 
-## Архитектура
+- Добавлен HTTP-клиент `RestClient` на `Bitrix\Main\Web\HttpClient`.
+- `YandexWebmasterProvider` теперь выполняет реальный REST GET к API Webmaster.
+- `GoogleSearchConsoleProvider` выполняет реальный REST POST к Search Analytics API.
+- Провайдеры получают креды из `Bitrix\Main\Config\Option` через `ApiProviderRegistry`.
 
-### 1) Слои
+### 2) UI управления tenant/project/task
 
-- **Presentation/UI**: страницы админки Битрикс + wizard настройки.
-- **Application**: scheduler, очередь задач, менеджер миграций, менеджер агентов.
-- **Domain**: пакетные планы, фичи и лимиты.
-- **Infrastructure**: API-коннекторы поисковиков и LLM-провайдеров.
-- **Data/ORM**: таблицы и D7 сущности.
+Добавлены страницы админки:
+- `Entities`: создание и просмотр tenant/project/task.
+- `Dashboard`: KPI по тенантам/проектам/очереди + статус API-провайдеров.
+- `Setup Wizard`: настройка токенов провайдеров.
 
-### 2) Основные bounded-context'ы
+### 3) Генерация PDF/HTML SEO-отчетов
 
-- `Core SEO` — семантика, кластеры, SERP, позиции.
-- `Audit` — технический аудит, сниппеты, мета-теги.
-- `Competitor Intel` — конкуренты, backlink, benchmark.
-- `AI Lab` — embeddings, intent, NLP similarity, прогнозы.
-- `Automation` — очередь, крон, агенты, action planner.
-- `Tenant/Billing` — пакетные ограничения и изоляция клиентов.
+- `ReportService` генерирует:
+  - HTML отчет;
+  - PDF отчет (минимальный валидный PDF-генератор без внешних зависимостей).
+- Отчеты сохраняются в `/upload/ai_seoaudit/reports` и фиксируются в таблице `b_ai_seo_report`.
 
-## Реализация ключевых задач из запроса
+### 4) Векторное хранилище + RAG knowledge base
 
-### 1) Миграции таблиц + ORM Bitrix D7
+- Добавлена таблица `b_ai_seo_vector_document`.
+- Реализовано:
+  - `EmbeddingService` (hash-based embeddings);
+  - `VectorStoreService` (индексация + cosine search);
+  - `RagService` (выдача релевантного контекста и draft answer).
+- В админке добавлена страница `Reports & RAG` для индексации, RAG-вопросов и генерации отчетов.
 
-Реализовано:
-- SQL миграции в `install/db/mysql/install.sql` и `uninstall.sql`.
-- `MigrationManager` для выполнения SQL при установке/удалении.
-- D7 ORM классы:
-  - `TenantTable`
-  - `ProjectTable`
-  - `TaskTable`
-  - `ApiCredentialTable`
+## Структура БД
 
-### 2) Крон/агенты для планировщика и очередей
+- `b_ai_seo_tenant`
+- `b_ai_seo_project`
+- `b_ai_seo_task`
+- `b_ai_seo_api_credential`
+- `b_ai_seo_report`
+- `b_ai_seo_vector_document`
 
-Реализовано:
-- `AgentManager` регистрирует агент `runQueueAgent()` каждые 300 секунд.
-- `QueueService` обрабатывает отложенные задания из `b_ai_seo_task`.
-- `Scheduler::tick()` запускает очередь на `OnAfterEpilog`.
-- Cron-скрипт: `local/modules/ai.seoaudit/tools/cron_queue.php`.
+## Что осталось для production-hardening
 
-Пример crontab:
-
-```bash
-*/5 * * * * /usr/bin/php -f /var/www/html/local/modules/ai.seoaudit/tools/cron_queue.php
-```
-
-### 3) UI в админке (дашборд + мастер)
-
-Реализовано:
-- Пункт меню модуля `AI SEO Audit`.
-- Страница `Dashboard` (`ai_seoaudit_dashboard.php`).
-- Страница `Setup Wizard` (`ai_seoaudit_wizard.php`) для сохранения API-ключей.
-
-### 4) API провайдеры (Яндекс/Google/OpenAI/локальные LLM)
-
-Реализовано:
-- Контракты:
-  - `SearchProviderInterface`
-  - `LlmProviderInterface`
-- Провайдеры:
-  - `YandexWebmasterProvider`
-  - `GoogleSearchConsoleProvider`
-  - `OpenAiProvider`
-  - `LocalLlmProvider`
-- Реестр провайдеров `ApiProviderRegistry`.
-
-## Пакеты для маркетплейса
-
-| Пакет | Для кого | Ключевые возможности |
-|---|---|---|
-| **Start** | Малый бизнес | Семантика, позиции, базовый аудит, SERP-отчет, ручные рекомендации |
-| **Pro** | Инхаус SEO/агентства | Кластеризация, competitor discovery, AI meta generation, action planner |
-| **Enterprise** | Крупные проекты | Multi-region, ML прогнозы, RAG, benchmark score, API/webhooks |
-| **Autonomous** | AI-first компании | Multi-agent automation, RL оптимизация, auto growth engine |
-
-## Следующий этап
-
-1. Реализовать полноценные интеграции REST-клиентов Яндекс/Google.
-2. Добавить UI управления проектами/тенантами/заданиями.
-3. Подключить генерацию PDF/HTML SEO-отчетов.
-4. Внедрить векторное хранилище и RAG knowledge base.
-5. Подготовить коммерческие редакции и лицензионные ограничения для маркетплейса.
+1. OAuth refresh flow для GSC и Яндекс.
+2. Retry/circuit breaker для REST-клиентов.
+3. Переход с hash-embedding на внешнюю embedding-модель.
+4. Рендер PDF через внешний движок (wkhtmltopdf / dompdf / tcpdf) при необходимости сложной верстки.

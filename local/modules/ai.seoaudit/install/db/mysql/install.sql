@@ -45,3 +45,27 @@ CREATE TABLE IF NOT EXISTS b_ai_seo_api_credential (
     PRIMARY KEY (ID),
     KEY IX_AI_SEO_API_CREDENTIAL_TENANT (TENANT_ID)
 );
+
+CREATE TABLE IF NOT EXISTS b_ai_seo_report (
+    ID int NOT NULL AUTO_INCREMENT,
+    TENANT_ID int NOT NULL,
+    PROJECT_ID int NOT NULL,
+    TYPE varchar(50) NOT NULL,
+    FORMAT varchar(10) NOT NULL,
+    PATH varchar(500) NOT NULL,
+    CREATED_AT datetime NOT NULL,
+    PRIMARY KEY (ID),
+    KEY IX_AI_SEO_REPORT_PROJECT (PROJECT_ID)
+);
+
+CREATE TABLE IF NOT EXISTS b_ai_seo_vector_document (
+    ID int NOT NULL AUTO_INCREMENT,
+    TENANT_ID int NOT NULL,
+    PROJECT_ID int NOT NULL,
+    URL varchar(500) NOT NULL,
+    CONTENT mediumtext NOT NULL,
+    EMBEDDING longtext NOT NULL,
+    CREATED_AT datetime NOT NULL,
+    PRIMARY KEY (ID),
+    KEY IX_AI_SEO_VECTOR_PROJECT (PROJECT_ID)
+);
