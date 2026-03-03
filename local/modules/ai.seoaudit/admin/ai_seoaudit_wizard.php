@@ -15,6 +15,7 @@ if (!Loader::includeModule('ai.seoaudit')) {
 }
 
 $moduleId = 'ai.seoaudit';
+$message = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && check_bitrix_sessid()) {
     $fields = [
@@ -35,10 +36,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && check_bitrix_sessid()) {
     foreach ($fields as $field) {
         Option::set($moduleId, $field, (string) ($_POST[$field] ?? ''));
     }
+
+    $message = Loc::getMessage('AI_SEO_WIZARD_SAVED');
+}
+
+$warnings = [];
+if (Option::get($moduleId, 'oauth_gsc_client_id', '') === '' || Option::get($moduleId, 'oauth_gsc_client_secret', '') === '' || Option::get($moduleId, 'oauth_gsc_refresh_token', '') === '') {
+    $warnings[] = Loc::getMessage('AI_SEO_WIZARD_WARN_GSC');
+}
+if (Option::get($moduleId, 'oauth_yandex_client_id', '') === '' || Option::get($moduleId, 'oauth_yandex_client_secret', '') === '' || Option::get($moduleId, 'oauth_yandex_refresh_token', '') === '') {
+    $warnings[] = Loc::getMessage('AI_SEO_WIZARD_WARN_YANDEX');
+}
+if (Option::get($moduleId, 'openai_key', '') === '' || Option::get($moduleId, 'openai_embedding_model', '') === '') {
+    $warnings[] = Loc::getMessage('AI_SEO_WIZARD_WARN_EMBEDDING');
+}
+if (Option::get($moduleId, 'pdf_engine', 'wkhtmltopdf') === 'wkhtmltopdf' && !is_executable((string) Option::get($moduleId, 'wkhtmltopdf_binary', 'wkhtmltopdf'))) {
+    $warnings[] = Loc::getMessage('AI_SEO_WIZARD_WARN_PDF');
 }
 
 $APPLICATION->SetTitle(Loc::getMessage('AI_SEO_WIZARD_TITLE'));
 require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
+
+if ($message !== null) {
+    CAdminMessage::ShowMessage(['TYPE' => 'OK', 'MESSAGE' => $message]);
+}
+if (!empty($warnings)) {
+    CAdminMessage::ShowMessage(['TYPE' => 'ERROR', 'MESSAGE' => implode('<br>', $warnings)]);
+}
 ?>
 <form method="post">
     <?php echo bitrix_sessid_post(); ?>

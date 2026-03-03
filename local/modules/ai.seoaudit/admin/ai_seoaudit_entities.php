@@ -4,8 +4,10 @@ use Ai\SeoAudit\Model\ProjectTable;
 use Ai\SeoAudit\Model\TaskTable;
 use Ai\SeoAudit\Model\TenantTable;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
 
+Loc::loadMessages(__FILE__);
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php';
 
 if (!Loader::includeModule('ai.seoaudit')) {
@@ -54,42 +56,42 @@ $tenants = TenantTable::getList(['order' => ['ID' => 'DESC'], 'limit' => 20])->f
 $projects = ProjectTable::getList(['order' => ['ID' => 'DESC'], 'limit' => 20])->fetchAll();
 $tasks = TaskTable::getList(['order' => ['ID' => 'DESC'], 'limit' => 20])->fetchAll();
 
-$APPLICATION->SetTitle('Tenants / Projects / Tasks');
+$APPLICATION->SetTitle(Loc::getMessage('AI_SEO_ENTITIES_TITLE'));
 require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
 ?>
-<h2>Добавить Tenant</h2>
+<h2><?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_ENTITIES_ADD_TENANT'));?></h2>
 <form method="post"><?php echo bitrix_sessid_post(); ?>
     <input type="hidden" name="action" value="add_tenant">
-    <input type="text" name="tenant_name" placeholder="Tenant name">
-    <input type="text" name="tenant_code" placeholder="tenant_code">
-    <button class="adm-btn-save" type="submit">Добавить</button>
+    <input type="text" name="tenant_name" placeholder="<?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_ENTITIES_TENANT_NAME'));?>">
+    <input type="text" name="tenant_code" placeholder="<?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_ENTITIES_TENANT_CODE'));?>">
+    <button class="adm-btn-save" type="submit"><?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_COMMON_ADD'));?></button>
 </form>
 
-<h2>Добавить Project</h2>
+<h2><?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_ENTITIES_ADD_PROJECT'));?></h2>
 <form method="post"><?php echo bitrix_sessid_post(); ?>
     <input type="hidden" name="action" value="add_project">
-    <input type="number" name="project_tenant_id" placeholder="Tenant ID">
-    <input type="text" name="project_name" placeholder="Project name">
+    <input type="number" name="project_tenant_id" placeholder="<?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_ENTITIES_TENANT_ID'));?>">
+    <input type="text" name="project_name" placeholder="<?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_ENTITIES_PROJECT_NAME'));?>">
     <input type="text" name="project_domain" placeholder="example.com">
-    <button class="adm-btn-save" type="submit">Добавить</button>
+    <button class="adm-btn-save" type="submit"><?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_COMMON_ADD'));?></button>
 </form>
 
-<h2>Добавить Task</h2>
+<h2><?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_ENTITIES_ADD_TASK'));?></h2>
 <form method="post"><?php echo bitrix_sessid_post(); ?>
     <input type="hidden" name="action" value="add_task">
-    <input type="number" name="task_tenant_id" placeholder="Tenant ID">
-    <input type="number" name="task_project_id" placeholder="Project ID">
+    <input type="number" name="task_tenant_id" placeholder="<?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_ENTITIES_TENANT_ID'));?>">
+    <input type="number" name="task_project_id" placeholder="<?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_ENTITIES_PROJECT_ID'));?>">
     <input type="text" name="task_type" placeholder="serp_sync">
     <input type="text" name="task_payload" placeholder='{"keyword":"seo"}'>
-    <button class="adm-btn-save" type="submit">Добавить</button>
+    <button class="adm-btn-save" type="submit"><?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_COMMON_ADD'));?></button>
 </form>
 
-<h2>Tenants</h2>
+<h2><?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_ENTITIES_TENANTS'));?></h2>
 <pre><?php echo htmlspecialcharsbx(print_r($tenants, true)); ?></pre>
 
-<h2>Projects</h2>
+<h2><?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_ENTITIES_PROJECTS'));?></h2>
 <pre><?php echo htmlspecialcharsbx(print_r($projects, true)); ?></pre>
 
-<h2>Tasks</h2>
+<h2><?=htmlspecialcharsbx(Loc::getMessage('AI_SEO_ENTITIES_TASKS'));?></h2>
 <pre><?php echo htmlspecialcharsbx(print_r($tasks, true)); ?></pre>
 <?php require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php'; ?>
