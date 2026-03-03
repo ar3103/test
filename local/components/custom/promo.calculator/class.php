@@ -116,7 +116,7 @@ class PromoCalculatorComponent extends CBitrixComponent
 
         $data = [
             'promo_type' => trim((string)$request->getPost('promo_type')),
-            'required_staff' => trim((string)$request->getPost('required_staff')),
+            'required_staff' => $request->getPost('required_staff'),
             'people_count' => (int)$request->getPost('people_count'),
             'hours_count' => (int)$request->getPost('hours_count'),
             'days_count' => (int)$request->getPost('days_count'),
@@ -125,6 +125,15 @@ class PromoCalculatorComponent extends CBitrixComponent
             'email' => trim((string)$request->getPost('email')),
             'message' => trim((string)$request->getPost('message')),
         ];
+
+
+        if (!is_array($data['required_staff'])) {
+            $data['required_staff'] = [$data['required_staff']];
+        }
+
+        $data['required_staff'] = array_values(array_filter(array_map('trim', $data['required_staff']), static function ($value) {
+            return $value !== '';
+        }));
 
         $validationError = $this->validate($data);
         if ($validationError !== null) {
@@ -152,8 +161,14 @@ class PromoCalculatorComponent extends CBitrixComponent
             return Loc::getMessage('PROMO_CALCULATOR_ERROR_PROMO_TYPE');
         }
 
-        if ($data['required_staff'] === '' || !in_array($data['required_staff'], $this->arResult['REQUIRED_STAFF_OPTIONS'], true)) {
+        if (!$data['required_staff']) {
             return Loc::getMessage('PROMO_CALCULATOR_ERROR_REQUIRED_STAFF');
+        }
+
+        foreach ($data['required_staff'] as $requiredStaff) {
+            if (!in_array($requiredStaff, $this->arResult['REQUIRED_STAFF_OPTIONS'], true)) {
+                return Loc::getMessage('PROMO_CALCULATOR_ERROR_REQUIRED_STAFF');
+            }
         }
 
         if ($data['people_count'] < 1 || $data['hours_count'] < 1 || $data['days_count'] < 1) {
@@ -274,7 +289,7 @@ class PromoCalculatorComponent extends CBitrixComponent
 
         $sheet->setCellValue('A6', Loc::getMessage('PROMO_CALCULATOR_EXCEL_ROW_MECHANIC_DEFAULT'));
         $sheet->setCellValue('B6', Loc::getMessage('PROMO_CALCULATOR_EXCEL_ROW_LOCATION_DEFAULT'));
-        $sheet->setCellValue('C6', $data['required_staff']);
+        $sheet->setCellValue('C6', implode(', ', $data['required_staff']));
         $sheet->setCellValue('D6', $calculation['rate_per_day']);
         $sheet->setCellValue('E6', $data['people_count']);
         $sheet->setCellValue('F6', $data['days_count']);
@@ -354,7 +369,7 @@ class PromoCalculatorComponent extends CBitrixComponent
             'PREVIEW_TEXT' => $data['message'],
             'PROPERTY_VALUES' => [
                 'PROMO_TYPE' => $data['promo_type'],
-                'REQUIRED_STAFF' => $data['required_staff'],
+                'REQUIRED_STAFF' => implode(', ', $data['required_staff']),
                 'PEOPLE_COUNT' => $data['people_count'],
                 'HOURS_COUNT' => $data['hours_count'],
                 'DAYS_COUNT' => $data['days_count'],
@@ -386,7 +401,7 @@ class PromoCalculatorComponent extends CBitrixComponent
                 'EMAIL' => $data['email'],
                 'PROMO_TYPE' => $data['promo_type'],
                 'TOTAL' => $calculation['total'],
-                'MESSAGE' => $data['message'],
+                'MESSAGE' => $data['message'] . ' | ' . Loc::getMessage('PROMO_CALCULATOR_REQUIRED_STAFF_LABEL') . ': ' . implode(', ', $data['required_staff']),
                 'EXCEL_URL' => $excelPath,
             ],
         ]);
@@ -403,6 +418,7 @@ class PromoCalculatorComponent extends CBitrixComponent
             . Loc::getMessage('PROMO_CALCULATOR_TELEGRAM_PHONE') . ': ' . $data['phone'] . '%0A'
             . Loc::getMessage('PROMO_CALCULATOR_TELEGRAM_EMAIL') . ': ' . $data['email'] . '%0A'
             . Loc::getMessage('PROMO_CALCULATOR_TELEGRAM_TYPE') . ': ' . $data['promo_type'] . '%0A'
+            . Loc::getMessage('PROMO_CALCULATOR_REQUIRED_STAFF_LABEL') . ': ' . implode(', ', $data['required_staff']) . '%0A'
             . Loc::getMessage('PROMO_CALCULATOR_TELEGRAM_TOTAL') . ': ' . $calculation['total'] . ' ' . Loc::getMessage('PROMO_CALCULATOR_CURRENCY_RUB') . '%0A'
             . Loc::getMessage('PROMO_CALCULATOR_TELEGRAM_FILE') . ': ' . $excelPath;
 

@@ -32,9 +32,8 @@ $this->addExternalJs($templateFolder . '/script.js');
         </label>
 
         <label><?= Loc::getMessage('PROMO_CALCULATOR_FIELD_REQUIRED_STAFF') ?>
-            <select name="required_staff" required>
-                <option value=""><?= Loc::getMessage('PROMO_CALCULATOR_OPTION_SELECT_STAFF') ?></option>
-                <?php foreach ($arResult['REQUIRED_STAFF_OPTIONS'] as $staffOption): ?>
+            <select name="required_staff[]" multiple required size="6">
+                                <?php foreach ($arResult['REQUIRED_STAFF_OPTIONS'] as $staffOption): ?>
                     <option value="<?= htmlspecialcharsbx($staffOption) ?>"><?= htmlspecialcharsbx($staffOption) ?></option>
                 <?php endforeach; ?>
             </select>
