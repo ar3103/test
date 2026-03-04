@@ -4,37 +4,32 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Loader;
 
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
-    die();
-}
-
 /**
- * Автообновление sitemap при изменениях в инфоблоках.
+ * Синхронизация sitemap после изменений в инфоблоках.
+ *
+ * Важно: не используем Runtime::addIblockElement/addIblockSection,
+ * т.к. в части проектов этих методов нет (разные версии модуля seo).
  */
-final class LocalSitemapAutoUpdate
+final class ProjectSitemapSync
 {
     private const OPTION_MODULE = 'main';
-    private const OPTION_FLAG = 'local_sitemap_autoupdate_pending';
-    private const AGENT_NAME = '\\LocalSitemapAutoUpdate::runAgent();';
+    private const OPTION_FLAG = 'project_sitemap_sync_pending';
+    private const AGENT_NAME = '\\ProjectSitemapSync::runAgent();';
 
     /**
      * @param array<string, mixed> $fields
      */
-    public static function onIblockEntityChange(array $fields): void
+    public static function onEntityChange(array $fields): void
     {
         $iblockId = (int)($fields['IBLOCK_ID'] ?? 0);
-        if ($iblockId <= 0) {
+        if ($iblockId <= 0 || !self::isAllowedIblock($iblockId)) {
             return;
         }
 
-        if (!self::isAllowedIblock($iblockId)) {
-            return;
-        }
-
-        self::queueRegeneration();
+        self::queue();
     }
 
-    public static function queueRegeneration(): void
+    public static function queue(): void
     {
         if (Option::get(self::OPTION_MODULE, self::OPTION_FLAG, 'N') === 'Y') {
             return;
@@ -42,62 +37,74 @@ final class LocalSitemapAutoUpdate
 
         Option::set(self::OPTION_MODULE, self::OPTION_FLAG, 'Y');
 
-        if (class_exists('CAgent')) {
-            // Отложенный запуск агентом снижает риск блокировки пользовательского запроса.
-            CAgent::RemoveAgent(self::AGENT_NAME, 'main');
-            CAgent::AddAgent(
-                self::AGENT_NAME,
-                'main',
-                'N',
-                60,
-                '',
-                'Y',
-                ConvertTimeStamp(false, 'FULL')
-            );
+        if (!class_exists('CAgent')) {
+            return;
         }
+
+        CAgent::RemoveAgent(self::AGENT_NAME, 'main');
+        CAgent::AddAgent(
+            self::AGENT_NAME,
+            'main',
+            'N',
+            60,
+            '',
+            'Y',
+            ConvertTimeStamp(false, 'FULL')
+        );
     }
 
     public static function runAgent(): string
     {
         Option::set(self::OPTION_MODULE, self::OPTION_FLAG, 'N');
-        self::regenerateSitemap();
+        self::regenerateAll();
 
         return '';
     }
 
-    private static function regenerateSitemap(): void
+    private static function regenerateAll(): void
     {
-        if (!Loader::includeModule('seo')) {
+        if (!Loader::includeModule('seo') || !class_exists('CSeoUtils')) {
             return;
         }
 
-        // Проходимся по всем sitemap и запускаем генерацию.
-        if (class_exists('CSeoUtils') && method_exists('CSeoUtils', 'GetSitemapList')) {
-            $siteMapList = CSeoUtils::GetSitemapList();
-            if (is_array($siteMapList)) {
-                foreach ($siteMapList as $siteId => $maps) {
-                    if (!is_array($maps)) {
-                        continue;
-                    }
+        $sitemaps = CSeoUtils::GetSitemapList();
+        if (!is_array($sitemaps)) {
+            return;
+        }
 
-                    foreach ($maps as $map) {
-                        $mapId = (int)($map['ID'] ?? 0);
-                        if ($mapId <= 0) {
-                            continue;
-                        }
-
-                        if (class_exists('CSiteMap') && method_exists('CSiteMap', 'ReIndex')) {
-                            CSiteMap::ReIndex($siteId, $mapId);
-                        }
-                    }
-                }
+        foreach ($sitemaps as $siteId => $maps) {
+            if (!is_array($maps)) {
+                continue;
             }
+
+            foreach ($maps as $map) {
+                $mapId = (int)($map['ID'] ?? 0);
+                if ($mapId <= 0) {
+                    continue;
+                }
+
+                self::rebuildMap($siteId, $mapId, $map);
+            }
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $map
+     */
+    private static function rebuildMap(string $siteId, int $mapId, array $map): void
+    {
+        if (class_exists('CSiteMap') && method_exists('CSiteMap', 'ReIndex')) {
+            CSiteMap::ReIndex($siteId, $mapId);
+            return;
+        }
+
+        if (class_exists('CSiteMap') && method_exists('CSiteMap', 'Generate')) {
+            CSiteMap::Generate($mapId, $map);
         }
     }
 
     private static function isAllowedIblock(int $iblockId): bool
     {
-        // Ограничение по инфоблокам через константу (пример: define('AUTO_SITEMAP_IBLOCK_IDS', [2, 5, 7]);)
         if (!defined('AUTO_SITEMAP_IBLOCK_IDS')) {
             return true;
         }
@@ -109,7 +116,6 @@ final class LocalSitemapAutoUpdate
 }
 
 $eventManager = EventManager::getInstance();
-
 $events = [
     'OnAfterIBlockElementAdd',
     'OnAfterIBlockElementUpdate',
@@ -120,5 +126,5 @@ $events = [
 ];
 
 foreach ($events as $eventName) {
-    $eventManager->addEventHandler('iblock', $eventName, [LocalSitemapAutoUpdate::class, 'onIblockEntityChange']);
+    $eventManager->addEventHandler('iblock', $eventName, [ProjectSitemapSync::class, 'onEntityChange']);
 }
