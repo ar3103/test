@@ -14,7 +14,10 @@ final class ProjectSitemapSync
 {
     private const OPTION_MODULE = 'main';
     private const OPTION_FLAG = 'project_sitemap_sync_pending';
+    private const OPTION_SCHEDULE_TS = 'project_sitemap_sync_scheduled_ts';
+    private const OPTION_LOCK = 'project_sitemap_sync_lock';
     private const AGENT_NAME = '\\ProjectSitemapSync::runAgent();';
+    private const DELAY_SECONDS = 60;
 
     /**
      * @param array<string, mixed> $fields
@@ -31,11 +34,10 @@ final class ProjectSitemapSync
 
     public static function queue(): void
     {
-        if (Option::get(self::OPTION_MODULE, self::OPTION_FLAG, 'N') === 'Y') {
-            return;
+        if (Option::get(self::OPTION_MODULE, self::OPTION_FLAG, 'N') !== 'Y') {
+            Option::set(self::OPTION_MODULE, self::OPTION_FLAG, 'Y');
+            Option::set(self::OPTION_MODULE, self::OPTION_SCHEDULE_TS, (string)(time() + self::DELAY_SECONDS));
         }
-
-        Option::set(self::OPTION_MODULE, self::OPTION_FLAG, 'Y');
 
         if (!class_exists('CAgent')) {
             return;
@@ -46,19 +48,49 @@ final class ProjectSitemapSync
             self::AGENT_NAME,
             'main',
             'N',
-            60,
+            self::DELAY_SECONDS,
             '',
             'Y',
             ConvertTimeStamp(false, 'FULL')
         );
     }
 
+    public static function processQueue(): void
+    {
+        if (Option::get(self::OPTION_MODULE, self::OPTION_FLAG, 'N') !== 'Y') {
+            return;
+        }
+
+        $scheduledTs = (int)Option::get(self::OPTION_MODULE, self::OPTION_SCHEDULE_TS, '0');
+        if ($scheduledTs > time()) {
+            return;
+        }
+
+        self::executeRegeneration();
+    }
+
     public static function runAgent(): string
     {
-        Option::set(self::OPTION_MODULE, self::OPTION_FLAG, 'N');
-        self::regenerateAll();
+        self::executeRegeneration();
 
         return '';
+    }
+
+    private static function executeRegeneration(): void
+    {
+        if (Option::get(self::OPTION_MODULE, self::OPTION_LOCK, 'N') === 'Y') {
+            return;
+        }
+
+        Option::set(self::OPTION_MODULE, self::OPTION_LOCK, 'Y');
+
+        try {
+            self::regenerateAll();
+            Option::set(self::OPTION_MODULE, self::OPTION_FLAG, 'N');
+            Option::set(self::OPTION_MODULE, self::OPTION_SCHEDULE_TS, '0');
+        } finally {
+            Option::set(self::OPTION_MODULE, self::OPTION_LOCK, 'N');
+        }
     }
 
     private static function regenerateAll(): void
@@ -83,7 +115,7 @@ final class ProjectSitemapSync
                     continue;
                 }
 
-                self::rebuildMap($siteId, $mapId, $map);
+                self::rebuildMap((string)$siteId, $mapId, $map);
             }
         }
     }
@@ -128,3 +160,6 @@ $events = [
 foreach ($events as $eventName) {
     $eventManager->addEventHandler('iblock', $eventName, [ProjectSitemapSync::class, 'onEntityChange']);
 }
+
+// Фоллбек для проектов, где агенты выполняются редко (cron) или отключены на хитах.
+$eventManager->addEventHandler('main', 'OnAfterEpilog', [ProjectSitemapSync::class, 'processQueue']);
