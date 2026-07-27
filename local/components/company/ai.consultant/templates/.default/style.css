@@ -1,0 +1,83 @@
+.ai-consultant {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 999;
+    font-family: Arial, sans-serif;
+}
+
+.ai-consultant__toggle {
+    border: 0;
+    border-radius: 999px;
+    background: #2f65ff;
+    color: #fff;
+    padding: 10px 16px;
+    cursor: pointer;
+}
+
+.ai-consultant__panel {
+    margin-top: 10px;
+    width: 340px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, .2);
+    background: #fff;
+}
+
+.ai-consultant__header {
+    padding: 12px;
+    color: #fff;
+    background: #1f3ea8;
+    font-weight: 700;
+}
+
+.ai-consultant__messages {
+    padding: 12px;
+    background: #f8f9fc;
+    overflow-y: auto;
+    min-height: 240px;
+}
+
+.ai-consultant__message {
+    margin-bottom: 10px;
+    border-radius: 10px;
+    padding: 8px 10px;
+    max-width: 90%;
+}
+
+.ai-consultant__message--bot {
+    background: #fff;
+}
+
+.ai-consultant__message--user {
+    margin-left: auto;
+    background: #2f65ff;
+    color: #fff;
+}
+
+.ai-consultant__contacts,
+.ai-consultant__form {
+    padding: 10px;
+    border-top: 1px solid #eceef6;
+    display: grid;
+    gap: 8px;
+}
+
+.ai-consultant__contacts input,
+.ai-consultant__form textarea,
+.ai-consultant__form button {
+    font: inherit;
+    padding: 8px;
+}
+
+.ai-consultant__rating {
+    border-top: 1px solid #eceef6;
+    padding: 10px;
+}
+
+.ai-consultant__rating button {
+    margin-right: 6px;
+}
