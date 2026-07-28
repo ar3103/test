@@ -1,0 +1,43 @@
+.promo-calculator {
+    display: grid;
+    grid-template-columns: minmax(280px, 420px) 1fr;
+    gap: 24px;
+}
+
+.promo-calculator__form {
+    display: grid;
+    gap: 12px;
+}
+
+.promo-calculator__form label {
+    display: grid;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.promo-calculator__form input,
+.promo-calculator__form select,
+.promo-calculator__form textarea {
+    padding: 8px;
+}
+
+.promo-calculator__form button {
+    padding: 10px 16px;
+    cursor: pointer;
+}
+
+.promo-calculator__result {
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.promo-calculator__total {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.promo-calculator__disclaimer {
+    color: #555;
+    font-size: 13px;
+}
