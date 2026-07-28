@@ -1,0 +1,7 @@
+{
+  "name": "local/bitrix-google-sheets-sync",
+  "description": "Bidirectional sync of Bitrix orders with Google Sheets",
+  "require": {
+    "google/apiclient": "^2.18"
+  }
+}
