@@ -1,0 +1,26 @@
+<?php
+$MESS['AI_SEO_MARKETPLACE_TITLE'] = 'Маркетплейс: тарифы и выгода';
+$MESS['AI_SEO_MARKETPLACE_MAIN_PLANS'] = '3 основных тарифа + Enterprise по запросу';
+$MESS['AI_SEO_MARKETPLACE_PLAN'] = 'Тариф';
+$MESS['AI_SEO_MARKETPLACE_PRICE'] = 'Цена';
+$MESS['AI_SEO_MARKETPLACE_VALUE'] = 'Что входит';
+$MESS['AI_SEO_MARKETPLACE_START'] = 'База: позиции, семантика, аудит, SERP';
+$MESS['AI_SEO_MARKETPLACE_PRO'] = 'Рост: кластеризация, конкуренты, AI snippets';
+$MESS['AI_SEO_MARKETPLACE_AGENCY'] = 'Агентства: multi-client, API, RAG, автоматизация';
+$MESS['AI_SEO_MARKETPLACE_ENTERPRISE'] = 'SSO/SLA, кастомная интеграция, выделенные квоты';
+$MESS['AI_SEO_MARKETPLACE_REQUEST'] = 'по запросу';
+$MESS['AI_SEO_MARKETPLACE_TRIAL'] = 'Бесплатный trial 7–14 дней';
+$MESS['AI_SEO_MARKETPLACE_TRIAL_DESC'] = 'Рекомендуется ограничить trial до 2 000 ключей и 1 проекта.';
+$MESS['AI_SEO_MARKETPLACE_AI_VALUE'] = 'AI-ценность';
+$MESS['AI_SEO_MARKETPLACE_AI_FORECAST'] = 'AI-прогнозы ранжирования и трафика';
+$MESS['AI_SEO_MARKETPLACE_AI_AUTOMATION'] = 'Автоматизация SEO задач и action planner';
+$MESS['AI_SEO_MARKETPLACE_AI_RAG'] = 'RAG-помощник по базе знаний сайта';
+$MESS['AI_SEO_MARKETPLACE_AGENCY_BLOCK'] = 'Блок для агентств';
+$MESS['AI_SEO_MARKETPLACE_AGENCY_DESC'] = 'White-label, мульти-клиентская работа, централизованные отчеты.';
+$MESS['AI_SEO_MARKETPLACE_CALC_TITLE'] = 'Калькулятор выгоды';
+$MESS['AI_SEO_MARKETPLACE_CALC_DESC'] = 'Оценка роста органики и экономии на ручном SEO/контексте.';
+$MESS['AI_SEO_MARKETPLACE_CALC_TRAFFIC'] = 'Текущий органический трафик/мес';
+$MESS['AI_SEO_MARKETPLACE_CALC_GROWTH'] = 'Потенциальный рост, %';
+$MESS['AI_SEO_MARKETPLACE_CALC_CPC'] = 'Средний CPC, ₽';
+$MESS['AI_SEO_MARKETPLACE_CALC_BTN'] = 'Рассчитать';
+$MESS['AI_SEO_MARKETPLACE_CALC_RESULT'] = 'Доп. трафик: #ADDED# визитов/мес, эквивалент экономии: #SAVINGS# ₽/мес.';

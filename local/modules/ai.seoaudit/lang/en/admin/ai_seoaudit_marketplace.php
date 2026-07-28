@@ -1,0 +1,26 @@
+<?php
+$MESS['AI_SEO_MARKETPLACE_TITLE'] = 'Marketplace: plans and ROI';
+$MESS['AI_SEO_MARKETPLACE_MAIN_PLANS'] = '3 core plans + Enterprise on request';
+$MESS['AI_SEO_MARKETPLACE_PLAN'] = 'Plan';
+$MESS['AI_SEO_MARKETPLACE_PRICE'] = 'Price';
+$MESS['AI_SEO_MARKETPLACE_VALUE'] = 'Included';
+$MESS['AI_SEO_MARKETPLACE_START'] = 'Base: rankings, semantics, audit, SERP';
+$MESS['AI_SEO_MARKETPLACE_PRO'] = 'Growth: clustering, competitors, AI snippets';
+$MESS['AI_SEO_MARKETPLACE_AGENCY'] = 'Agencies: multi-client, API, RAG, automation';
+$MESS['AI_SEO_MARKETPLACE_ENTERPRISE'] = 'SSO/SLA, custom integrations, dedicated quotas';
+$MESS['AI_SEO_MARKETPLACE_REQUEST'] = 'on request';
+$MESS['AI_SEO_MARKETPLACE_TRIAL'] = 'Free 7–14 day trial';
+$MESS['AI_SEO_MARKETPLACE_TRIAL_DESC'] = 'Recommended trial limits: up to 2,000 keywords and 1 project.';
+$MESS['AI_SEO_MARKETPLACE_AI_VALUE'] = 'AI value';
+$MESS['AI_SEO_MARKETPLACE_AI_FORECAST'] = 'AI ranking and traffic forecasting';
+$MESS['AI_SEO_MARKETPLACE_AI_AUTOMATION'] = 'SEO automation and action planner';
+$MESS['AI_SEO_MARKETPLACE_AI_RAG'] = 'RAG assistant over site knowledge base';
+$MESS['AI_SEO_MARKETPLACE_AGENCY_BLOCK'] = 'Agency block';
+$MESS['AI_SEO_MARKETPLACE_AGENCY_DESC'] = 'White-label, multi-client operations, centralized reporting.';
+$MESS['AI_SEO_MARKETPLACE_CALC_TITLE'] = 'Benefit calculator';
+$MESS['AI_SEO_MARKETPLACE_CALC_DESC'] = 'Estimate organic growth and manual SEO/ad spend savings.';
+$MESS['AI_SEO_MARKETPLACE_CALC_TRAFFIC'] = 'Current organic traffic/month';
+$MESS['AI_SEO_MARKETPLACE_CALC_GROWTH'] = 'Potential growth, %';
+$MESS['AI_SEO_MARKETPLACE_CALC_CPC'] = 'Average CPC, ₽';
+$MESS['AI_SEO_MARKETPLACE_CALC_BTN'] = 'Calculate';
+$MESS['AI_SEO_MARKETPLACE_CALC_RESULT'] = 'Extra traffic: #ADDED# visits/month, estimated savings: #SAVINGS# ₽/month.';
